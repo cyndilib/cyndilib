@@ -20,106 +20,21 @@ from .clock cimport time
 __all__ = ('Lock', 'RLock', 'Condition', 'Event')
 
 
-cdef inline bint _lock_lock(LockStatus_s *lock, long current_thread,
-                            bint blocking, PY_TIMEOUT_T microseconds) except -1 nogil:
+cdef extern from "<ratio>" namespace "std::ratio" nogil:
+    cppclass micro:
+        pass
+    cppclass seconds:
+        pass
 
-    return _acquire_lock(lock, current_thread, blocking, microseconds, False)
+cdef extern from "<chrono>" namespace "std::chrono" nogil:
+    cppclass duration[T, U]:
+        duration()
+        duration(T)
+    cppclass microseconds(duration[long long, micro]):
+        microseconds()
+        microseconds(long long)
 
 
-cdef inline bint _lock_rlock(LockStatus_s *lock, long current_thread,
-                             bint blocking, PY_TIMEOUT_T microseconds) except -1 nogil:
-    # Note that this function *must* hold the GIL when being called.
-    # We just use 'nogil' in the signature to make sure that no Python
-    # code execution slips in that might free the GIL
-
-    if lock.acquire_count:
-        # locked! - by myself?
-        if lock.owner == current_thread:
-            lock.acquire_count += 1
-            return True
-    elif not lock.pending_requests:
-        # not locked, not requested - go!
-        lock.owner = current_thread
-        lock.acquire_count = 1
-        return True
-    # need to get the real lock
-    return _acquire_lock(lock, current_thread, blocking, microseconds, True)
-
-cdef inline int _unlock_lock(LockStatus_s *lock) except -1 nogil:
-    # Note that this function *must* hold the GIL when being called.
-    # We just use 'nogil' in the signature to make sure that no Python
-    # code execution slips in that might free the GIL
-
-    #assert lock.acquire_count > 0
-    lock.acquire_count -= 1
-    if lock.acquire_count == 0:
-        lock.owner = -1
-        if lock.is_locked:
-            PyThread_release_lock(lock.lock)
-        lock.is_locked = False
-    return 0
-
-cdef bint _acquire_lock(LockStatus_s *lock, long current_thread, bint blocking,
-                        PY_TIMEOUT_T microseconds, bint reentrant) except -1 nogil:
-    cdef int locked
-    cdef PyLockStatus result
-
-    wait = WAIT_LOCK if blocking else NOWAIT_LOCK
-    if reentrant and not lock.is_locked and not lock.pending_requests:
-        # someone owns it but didn't acquire the real lock - do that
-        # now and tell the owner to release it when done
-        if PyThread_acquire_lock(lock.lock, NOWAIT_LOCK):
-            lock.is_locked = True
-    #assert lock._is_locked
-
-    lock.pending_requests += 1
-
-    # wait for the lock owning thread to release it
-    with nogil:
-        if blocking and microseconds > 0:
-            while True:
-                result = PyThread_acquire_lock_timed(lock.lock, microseconds, 1)
-                if result == PyLockStatus.PY_LOCK_ACQUIRED:
-                    break
-                elif result == PyLockStatus.PY_LOCK_FAILURE:
-                    return False
-        else:
-            while True:
-                locked = PyThread_acquire_lock(lock.lock, wait)
-                if locked:
-                    break
-                if wait == NOWAIT_LOCK:
-                    return False
-    lock.pending_requests -= 1
-    #assert not lock.is_locked
-    #assert lock.reentry_count == 0
-    #assert locked
-    lock.is_locked = True
-    lock.owner = current_thread
-    lock.acquire_count = 1
-    return True
-
-cdef LockStatus_s* LockStatus_create() except *:
-    cdef LockStatus_s* lock = <LockStatus_s*>PyMem_Malloc(sizeof(LockStatus_s))
-    if lock is NULL:
-        raise MemoryError()
-
-    lock.is_locked = False
-    lock.owner = -1
-    lock.acquire_count = 0
-    lock.pending_requests = 0
-    lock.lock = PyThread_allocate_lock()
-    if lock.lock is NULL:
-        PyMem_Free(lock)
-        raise MemoryError()
-    return lock
-
-cdef int LockStatus_destroy(LockStatus_s* lock) except -1:
-    if lock.lock != NULL:
-        PyThread_free_lock(lock.lock)
-        lock.lock = NULL
-    PyMem_Free(lock)
-    return 0
 
 cdef class Lock:
     """Implementation of :class:`threading.Lock`. A Primitive non-reentrant
@@ -129,15 +44,17 @@ cdef class Lock:
     and released using the :keyword:`with` statement.
     """
     def __cinit__(self):
-        self._lock = LockStatus_create()
+        self._unique_lock_status.owner = -1
+        self._unique_lock_status.acquire_count = 0
+        self._unique_lock_status.pending_requests = 0
         self.name = ''
 
-    def __dealloc__(self):
-        cdef LockStatus_s* lock
-        if self._lock != NULL:
-            lock = self._lock
-            LockStatus_destroy(lock)
-            self._lock = NULL
+    @property
+    def owner(self):
+        """The thread ID of the thread that currently owns the lock, or ``-1``
+        if the lock is not acquired.
+        """
+        return self._unique_lock_status.owner
 
     @property
     def locked(self):
@@ -145,40 +62,61 @@ cdef class Lock:
         """
         return self._is_locked()
 
-    cdef bint _is_locked(self):
-        if self._lock.acquire_count > 0 or self._lock.owner >= 0 or self._lock.is_locked:
-            return True
-        return False
+    cdef bint _is_locked(self) except -1 nogil:
+        cdef bint was_acquired = self._mutex.try_lock()
+        if was_acquired:
+            self._mutex.unlock()
+        return not was_acquired
 
-    cdef bint _do_acquire(self, long owner) except -1:
-        return _lock_lock(self._lock, owner, True, -1)
+    cdef bint _do_acquire_gil_held(self, long owner) except -1:
+        with nogil:
+            return self._do_acquire_nogil(owner)
 
-    cdef bint _do_acquire_timed(self, long owner, PY_TIMEOUT_T microseconds) except -1:
-        return _lock_lock(self._lock, owner, True, microseconds)
+    cdef bint _do_acquire_nogil(self, long owner) except -1 nogil:
+        self._mutex.lock()
+        self._unique_lock_status.owner = owner
+        self._unique_lock_status.acquire_count += 1
+        return True
 
-    cdef int _do_release(self) except -1:
-        _unlock_lock(self._lock)
+    cdef bint _do_acquire_timed_gil_held(self, long owner, PY_TIMEOUT_T num_microseconds) except -1:
+        with nogil:
+            return self._do_acquire_timed_nogil(owner, num_microseconds)
+
+    cdef bint _do_acquire_timed_nogil(self, long owner, PY_TIMEOUT_T num_microseconds) except -1 nogil:
+        cdef microseconds dur = microseconds(num_microseconds)
+        cdef bint result = self._mutex.try_lock_for(dur)
+        if result:
+            self._unique_lock_status.owner = owner
+            self._unique_lock_status.acquire_count += 1
+        return result
+
+    cdef int _do_release(self) except -1 nogil:
+        cdef int acquire_count = self._unique_lock_status.acquire_count - 1
+        if acquire_count < 0:
+            acquire_count = 0
+        self._unique_lock_status.acquire_count = acquire_count
+        if acquire_count == 0:
+            self._unique_lock_status.owner = -1
+            self._mutex.unlock()
         return 0
 
-    cdef int _check_acquire(self) except -1:
-        # cdef long tid = PyThread_get_thread_ident()
-        #
-        # if self._lock.owner == tid:
-        #     raise RuntimeError('lock already acquired')
+    cdef int _check_acquire(self) except -1 nogil:
         return 0
 
     cdef int _check_release(self) except -1:
-        # cdef long tid = PyThread_get_thread_ident()
-        #
-        # if self._lock.owner != tid:
-        #     raise RuntimeError('cannot release un-acquired lock')
+        return 0
+
+    cdef int _check_release_nogil(self, long owner) except -1 nogil:
         return 0
 
     cdef bint _acquire(self, bint block, double timeout) except -1:
+        cdef long owner = PyThread_get_thread_ident()
+        with nogil:
+            return self._acquire_nogil(owner, block, timeout)
+
+    cdef bint _acquire_nogil(self, long owner, bint block, double timeout) except -1 nogil:
         cdef double microseconds
         cdef double multiplier = 1000000
-        cdef long tid = PyThread_get_thread_ident()
-
         self._check_acquire()
         if timeout == 0:
             block = False
@@ -186,18 +124,24 @@ cdef class Lock:
             block = True
         if block:
             if timeout < 0:
-                microseconds = -1
-            else:
-                microseconds = timeout * multiplier
-            return self._do_acquire_timed(tid, <PY_TIMEOUT_T> microseconds)
-        else:
-            microseconds = 0
-            return self._do_acquire_timed(tid, <PY_TIMEOUT_T> microseconds)
+                return self._do_acquire_nogil(owner)
+            microseconds = timeout * multiplier
+            return self._do_acquire_timed_nogil(owner, <PY_TIMEOUT_T> microseconds)
+        cdef bint was_acquired = self._mutex.try_lock()
+        if was_acquired:
+            self._unique_lock_status.owner = owner
+            self._unique_lock_status.acquire_count += 1
+        return was_acquired
 
     cdef bint _release(self) except -1:
         self._check_release()
         self._do_release()
-        return self._lock.is_locked
+        return self._is_locked()
+
+    cdef bint _release_nogil(self, long owner) except -1 nogil:
+        self._check_release_nogil(owner)
+        self._do_release()
+        return self._is_locked()
 
     cpdef bint acquire(self, bint block=True, double timeout=-1) except -1:
         """Acquire the lock, blocking or non-blocking
@@ -242,7 +186,8 @@ cdef class Lock:
         self._release()
 
     def __repr__(self):
-        return '<{self.__class__} {self.name} (locked={self.locked}) at {id}>'.format(self=self, id=id(self))
+        return '<{self.__class__} {self.name} (locked={self.locked}, owner={self.owner}) at {id}>'.format(self=self, id=id(self))
+
 
 cdef class RLock(Lock):
     """Implementation of :class:`threading.RLock`. A reentrant lock that can be
@@ -254,50 +199,70 @@ cdef class RLock(Lock):
     This class supports use as a :term:`context manager` and can be acquired
     and released using the :keyword:`with` statement.
     """
-    cdef bint _do_acquire(self, long owner) except -1:
-        return _lock_rlock(self._lock, owner, True, -1)
+    cdef bint _do_acquire_nogil(self, long owner) except -1 nogil:
+        cdef bint is_locked = self._is_locked()
+        if owner == self._unique_lock_status.owner and is_locked:
+            self._unique_lock_status.acquire_count += 1
+            return True
+        return Lock._do_acquire_nogil(self, owner)
 
-    cdef bint _do_acquire_timed(self, long owner, PY_TIMEOUT_T microseconds) except -1:
-        return _lock_rlock(self._lock, owner, True, microseconds)
+    cdef bint _do_acquire_timed_nogil(self, long owner, PY_TIMEOUT_T microseconds) except -1 nogil:
+        cdef bint is_locked = self._is_locked()
+        if owner == self._unique_lock_status.owner and is_locked:
+            self._unique_lock_status.acquire_count += 1
+            return True
+        return Lock._do_acquire_timed_nogil(self, owner, microseconds)
 
-    cdef int _check_acquire(self) except -1:
+    cdef int _check_acquire(self) except -1 nogil:
         return 0
 
     cdef int _check_release(self) except -1:
-        cdef long tid = PyThread_get_thread_ident()
-
-        if self._lock.owner != tid:
+        cdef long current_thread = PyThread_get_thread_ident()
+        if self._unique_lock_status.owner != current_thread:
             raise RuntimeError('cannot release un-owned lock')
         return 0
 
-    cdef bint _is_owned_c(self, long owner) except -1:
-        return owner == self._lock.owner
+    cdef int _check_release_nogil(self, long owner) except -1 nogil:
+        if self._unique_lock_status.owner != owner:
+            with gil:
+                raise RuntimeError('cannot release un-owned lock')
+        return 0
+
+    cdef bint _is_owned_c(self, long owner) except -1 nogil:
+        return owner == self._unique_lock_status.owner
 
     cpdef bint _is_owned(self) except -1:
         cdef long tid = PyThread_get_thread_ident()
         return self._is_owned_c(tid)
 
-    cdef int _acquire_restore_c(self, long current_owner, int count, long owner) except -1:
-        self._do_acquire(current_owner)
-        self._lock.acquire_count = count
-        self._lock.owner = owner
+    cdef int _acquire_restore_c_gil_held(self, long current_owner, int count, long owner) except -1:
+        with nogil:
+            self._acquire_restore_c_nogil(current_owner, count, owner)
+        return 0
+
+    cdef int _acquire_restore_c_nogil(self, long current_owner, int count, long owner) except -1 nogil:
+        self._do_acquire_nogil(current_owner)
+        self._unique_lock_status.acquire_count = count
+        self._unique_lock_status.owner = owner
+        return 0
 
     cdef int _acquire_restore(self, (int, long) state) except -1:
         cdef int count
         cdef long current_owner, owner
         current_owner = PyThread_get_thread_ident()
         count, owner = state
-        self._acquire_restore_c(current_owner, count, owner)
+        self._acquire_restore_c_gil_held(current_owner, count, owner)
+        return 0
 
     cdef (int, long) _release_save_c(self) except *:
-        cdef int count = self._lock.acquire_count
-        cdef long owner = self._lock.owner
+        cdef int count = self._unique_lock_status.acquire_count
+        cdef long owner = self._unique_lock_status.owner
 
         self._do_release()
         return count, owner
 
     cdef (int, long) _release_save(self) except *:
-        if not self._lock.acquire_count:
+        if not self._unique_lock_status.acquire_count:
             raise RuntimeError("cannot release un-acquired lock")
         return self._release_save_c()
 
