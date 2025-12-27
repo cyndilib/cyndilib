@@ -11,6 +11,7 @@ cimport cython
 from cyndilib.wrapper cimport *
 cimport numpy as cnp
 
+from cyndilib.locks cimport Lock, RLock, Condition, Event
 from cyndilib.send_frame_status cimport *
 from cyndilib.video_frame cimport VideoSendFrame, VideoFrameSync
 from cyndilib.audio_frame cimport AudioSendFrame, AudioFrameSync
@@ -153,3 +154,95 @@ cdef class BenchSender:
             return
         self.last_async_sender = NULL
         self.video_frame._on_sender_write(item)
+
+
+def cy_lock_direct_benchmark(RLock l, long owner, size_t num_iterations):
+    cdef size_t i
+    for i in range(num_iterations):
+        l._acquire(True, -1)
+        l._release()
+
+
+def cy_lock_direct_benchmark_nogil(RLock l, long owner, size_t num_iterations):
+    cdef size_t i
+
+    # # This is for the previous implementation:
+    # for i in range(num_iterations):
+    #     l._acquire(True, -1)
+    #     l._release()
+
+
+    # This is for the current implementation:
+    with nogil:
+        for i in range(num_iterations):
+            l._acquire_nogil(owner, True, -1)
+            l._release_nogil(owner)
+
+
+def cy_lock_direct_nonblocking_benchmark(RLock l, long owner, size_t num_iterations):
+    cdef size_t i
+    for i in range(num_iterations):
+        if l._acquire(False, -1):
+            l._release()
+
+
+def cy_lock_direct_nonblocking_benchmark_nogil(RLock l, long owner, size_t num_iterations):
+    cdef size_t i
+
+    # # This is for the previous implementation:
+    # for i in range(num_iterations):
+    #     if l._acquire(False, -1):
+    #         l._release()
+
+    # This is for the current implementation:
+    with nogil:
+        for i in range(num_iterations):
+            if l._acquire_nogil(owner, False, -1):
+                l._release_nogil(owner)
+
+
+def cy_lock_reentrant_benchmark(RLock l, long owner, size_t num_iterations):
+    cdef size_t i
+    for i in range(num_iterations):
+        l._acquire(True, -1)
+    for i in range(num_iterations):
+        l._release()
+
+
+def cy_lock_reentrant_benchmark_nogil(RLock l, long owner, size_t num_iterations):
+    cdef size_t i
+
+    # # This is for the previous implementation:
+    # for i in range(num_iterations):
+    #     l._acquire(True, -1)
+    # for i in range(num_iterations):
+    #     l._release()
+
+    # This is for the current implementation:
+    with nogil:
+        for i in range(num_iterations):
+            l._acquire_nogil(owner, True, -1)
+        for i in range(num_iterations):
+            l._release_nogil(owner)
+
+
+
+def cy_lock_reentrant_context_benchmark(RLock l, long owner):
+    with l: pass
+    with l:
+        with l:
+            with l: pass
+            with l: pass
+        with l:
+            with l: pass
+        with l:
+            with l: pass
+            with l: pass
+    with l: pass
+    with l:
+        with l:
+            with l: pass
+            with l: pass
+            with l:
+                with l: pass
+    with l: pass
