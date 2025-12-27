@@ -922,17 +922,20 @@ cdef class AudioSendFrame(AudioFrame):
     cdef int _set_num_channels(self, int value) except -1 nogil:
         if self.send_status.data.attached_to_sender:
             raise_exception('Cannot alter frame')
-        return AudioFrame._set_num_channels(self, value)
+        AudioFrame._set_num_channels(self, value)
+        return 0
 
     cdef int _set_num_samples(self, int value) except -1 nogil:
         if self.send_status.data.attached_to_sender:
             raise_exception('Cannot alter frame')
-        return AudioFrame._set_num_samples(self, value)
+        AudioFrame._set_num_samples(self, value)
+        return 0
 
     cdef int _set_channel_stride(self, int value) except -1 nogil:
         if self.send_status.data.attached_to_sender:
             raise_exception('Cannot alter frame')
-        return AudioFrame._set_channel_stride(self, value)
+        AudioFrame._set_channel_stride(self, value)
+        return 0
 
     cdef int _rebuild_array(self) except -1 nogil:
         cdef size_t nrows = self.ptr.no_channels, ncols = self.max_num_samples

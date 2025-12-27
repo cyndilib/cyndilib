@@ -115,6 +115,7 @@ cdef class FrameSync:
             return 0
         ptr.fs_ptr = self.ptr
         ptr.free_data = _free_video_default_func
+        return 0
 
     cdef int _set_audio_framesync_instance(self) except -1 nogil:
         if self.audio_frame is None:

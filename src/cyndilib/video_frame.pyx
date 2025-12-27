@@ -791,7 +791,8 @@ cdef class VideoSendFrame(VideoFrame):
         return &(self.send_status.items[idx])
 
     cdef int _recalc_pack_info(self, bint use_ptr_stride=False) except -1 nogil:
-        return VideoFrame._recalc_pack_info(self, use_ptr_stride)
+        VideoFrame._recalc_pack_info(self, use_ptr_stride)
+        return 0
 
     cdef bint _send_frame_available(self) noexcept nogil:
         cdef size_t idx = frame_status_get_next_read_index(&(self.send_status))
@@ -826,22 +827,26 @@ cdef class VideoSendFrame(VideoFrame):
     cdef int _set_xres(self, int value) except -1 nogil:
         if self.send_status.data.attached_to_sender:
             raise_exception('Cannot alter frame')
-        return VideoFrame._set_xres(self, value)
+        VideoFrame._set_xres(self, value)
+        return 0
 
     cdef int _set_yres(self, int value) except -1 nogil:
         if self.send_status.data.attached_to_sender:
             raise_exception('Cannot alter frame')
-        return VideoFrame._set_yres(self, value)
+        VideoFrame._set_yres(self, value)
+        return 0
 
     cdef int _set_resolution(self, int xres, int yres) except -1 nogil:
         if self.send_status.data.attached_to_sender:
             raise_exception('Cannot alter frame')
-        return VideoFrame._set_resolution(self, xres, yres)
+        VideoFrame._set_resolution(self, xres, yres)
+        return 0
 
     cdef int _set_fourcc(self, FourCC value) except -1 nogil:
         if self.send_status.data.attached_to_sender:
             raise_exception('Cannot alter frame')
-        return VideoFrame._set_fourcc(self, value)
+        VideoFrame._set_fourcc(self, value)
+        return 0
 
     cdef int _rebuild_array(self) except -1 nogil:
         cdef VideoSendFrame_status_s* s_ptr = &(self.send_status)

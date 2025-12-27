@@ -281,6 +281,7 @@ cdef class RLock(Lock):
         self._do_acquire(current_owner)
         self._lock.acquire_count = count
         self._lock.owner = owner
+        return 0
 
     cdef int _acquire_restore(self, (int, long) state) except -1:
         cdef int count
@@ -288,6 +289,7 @@ cdef class RLock(Lock):
         current_owner = PyThread_get_thread_ident()
         count, owner = state
         self._acquire_restore_c(current_owner, count, owner)
+        return 0
 
     cdef (int, long) _release_save_c(self) except *:
         cdef int count = self._lock.acquire_count
