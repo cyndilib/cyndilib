@@ -6,7 +6,7 @@
   "packageRules": [
     {
       "matchPackageNames": ["cython"],
-      "matchCurrentVersion": "/<=3\\.1\\.5/",
+      "matchCurrentValue": "<=3.1.5",
       "allowedVersions": "<=3.1.5"
     }
   ],
