@@ -32,4 +32,5 @@ jobs:
       - name: Run benchmarks
         uses: CodSpeedHQ/action@v4
         with:
+          mode: simulation
           run: uv run py.test tests/ --codspeed -n=0
