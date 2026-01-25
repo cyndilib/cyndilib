@@ -3,6 +3,13 @@
   "extends": [
     "config:recommended"
   ],
+  "packageRules": [
+    {
+      "matchPackageNames": ["cython"],
+      "matchCurrentVersion": "/<=3\\.1\\.5/",
+      "allowedVersions": "<=3.1.5"
+    }
+  ],
   "lockFileMaintenance": {
     "enabled": true
   }
