@@ -8,6 +8,11 @@
       "matchPackageNames": ["cython"],
       "matchCurrentValue": "<=3.1.5",
       "allowedVersions": "<=3.1.5"
+    },
+    {
+      "matchFileNames": [".github/workflows/codspeed.yml"],
+      "matchPackageNames": ["python"],
+      "allowedVersions": "3.13"
     }
   ],
   "lockFileMaintenance": {
