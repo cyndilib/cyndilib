@@ -52,10 +52,10 @@ jobs:
         include:
         - os: macos-15-intel
           arch: x86_64
-          python-version: "cp3{10,11,12}"
+          python-version: "cp3{10,11}"
         - os: macos-15-intel
           arch: x86_64
-          python-version: "cp3{13,14}"
+          python-version: "cp3{12,13,14}"
         - os: macos-latest
           arch: arm64
           python-version: "cp3{10,11,12,13,14}"
