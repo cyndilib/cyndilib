@@ -64,11 +64,11 @@ exclude = ["tests", "tests.*"]
 
 
 [project.urls]
-Homepage = "https://github.com/nocarryr/cyndilib"
+Homepage = "https://github.com/cyndilib/cyndilib"
 Documentation = "https://cyndilib.readthedocs.io"
 Download = "https://pypi.org/project/cyndilib"
-Source = "https://github.com/nocarryr/cyndilib"
-Tracker = "https://github.com/nocarryr/cyndilib/issues"
+Source = "https://github.com/cyndilib/cyndilib"
+Tracker = "https://github.com/cyndilib/cyndilib/issues"
 
 
 [dependency-groups]

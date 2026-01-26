@@ -22,7 +22,7 @@ Links
 .. list-table::
 
   * - Project Home
-    - https://github.com/nocarryr/cyndilib
+    - https://github.com/cyndilib/cyndilib
   * - Documentation
     - https://cyndilib.readthedocs.io
   * - PyPI
@@ -57,7 +57,7 @@ your platform or Python version.
 
 First clone or download the repository::
 
-    git clone https://github.com/nocarryr/cyndilib.git
+    git clone https://github.com/cyndilib/cyndilib.git
     cd cyndilib
 
 
