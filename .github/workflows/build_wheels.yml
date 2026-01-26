@@ -56,10 +56,10 @@ jobs:
         - os: macos-latest
           arch: arm64
           python-version: "cp3{10,11,12,13,14}"
-        - os: ubuntu-latest
+        - os: blacksmith-4vcpu-ubuntu-2404
           arch: x86_64
           python-version: "cp3{10,11,12,13,14}"
-        - os: windows-latest
+        - os: blacksmith-4vcpu-windows-2025
           arch: AMD64
           python-version: "cp3{10,11,12,13,14}"
         - os: blacksmith-4vcpu-ubuntu-2404-arm
