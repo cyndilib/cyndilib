@@ -58,10 +58,7 @@ jobs:
           python-version: "cp3{13,14}"
         - os: macos-latest
           arch: arm64
-          python-version: "cp3{10,11,12}"
-        - os: macos-latest
-          arch: arm64
-          python-version: "cp3{13,14}"
+          python-version: "cp3{10,11,12,13,14}"
         - os: blacksmith-2vcpu-ubuntu-2404
           arch: x86_64
           python-version: "cp3{10,11,12,13,14}"
