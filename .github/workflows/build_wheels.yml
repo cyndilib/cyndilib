@@ -52,17 +52,20 @@ jobs:
         include:
         - os: macos-15-intel
           arch: x86_64
-          python-version: "cp3{10,11,12,13,14}"
+          python-version: "cp3{10,11}"
+        - os: macos-15-intel
+          arch: x86_64
+          python-version: "cp3{12,13,14}"
         - os: macos-latest
           arch: arm64
           python-version: "cp3{10,11,12,13,14}"
-        - os: ubuntu-latest
+        - os: blacksmith-2vcpu-ubuntu-2404
           arch: x86_64
           python-version: "cp3{10,11,12,13,14}"
-        - os: windows-latest
+        - os: blacksmith-2vcpu-windows-2025
           arch: AMD64
           python-version: "cp3{10,11,12,13,14}"
-        - os: ubuntu-24.04-arm
+        - os: blacksmith-4vcpu-ubuntu-2404-arm
           arch: aarch64
           python-version: "cp3{10,11,12,13,14}"
 
@@ -117,7 +120,7 @@ jobs:
   deploy:
       name: 'Deploy to PyPI'
       needs: [build_wheels]
-      runs-on: ubuntu-latest
+      runs-on: blacksmith-4vcpu-ubuntu-2404
       if: ${{ inputs.allow_deploy }}
       permissions:
         id-token: write
