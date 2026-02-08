@@ -77,10 +77,10 @@ A :class:`~cyndilib.receiver.Receiver` is then created and an instance of
 
 Video frames are then read using the
 :meth:`FrameSync.capture_video <cyndilib.framesync.FrameSync.capture_video>`
-method which is available from the :attr:`~cyndilib.receiver.frame_sync` attribute
+method which is available from the :attr:`~cyndilib.receiver.Receiver.frame_sync` attribute
 on the receiver.
 
-The data is then fed to the :attr:`~subprocess.Popen.stdin` of the ``ffplay``
+The data is then fed to the :attr:`~subprocess.Popen.stdin` of the `ffplay`_
 subprocess directly from the video frame using the
 :ref:`buffer protocol <frame-buffer-protocol>`.
 
@@ -107,7 +107,7 @@ A :class:`~cyndilib.receiver.Receiver` is then created and an instance of
 
 Audio frames are then read using the
 :meth:`FrameSync.capture_audio <cyndilib.framesync.FrameSync.capture_audio>`
-method which is available from the :attr:`~cyndilib.receiver.frame_sync` attribute
+method which is available from the :attr:`~cyndilib.receiver.Receiver.frame_sync` attribute
 on the receiver.
 
 The audio data is then played using the `sounddevice`_ library.
