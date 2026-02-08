@@ -27,7 +27,8 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.intersphinx',
     'sphinx.ext.extlinks',
-    'sphinx_codeautolink',
+    # TODO: Re-enable after determining issues with import discovery in examples
+    # 'sphinx_codeautolink',
 ]
 
 

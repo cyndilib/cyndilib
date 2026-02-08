@@ -9,11 +9,17 @@ import shlex
 from fractions import Fraction
 from contextlib import contextmanager
 
+import numpy as np
+
 import click
 
-from cyndilib.wrapper.ndi_structs import FourCC
-from cyndilib.video_frame import VideoSendFrame
-from cyndilib.sender import Sender
+from cyndilib import (
+    Sender,
+    VideoSendFrame,
+    AudioSendFrame,
+    FourCC,
+    AudioReference,
+)
 
 TestSource = Literal[
     'testsrc2', 'yuvtestsrc', 'rgbtestsrc', 'smptebars', 'smptehdbars',
@@ -52,6 +58,11 @@ class Options(NamedTuple):
     yres: int                           #: Vertical resolution
     fps: str                            #: Frame rate
     sender_name: str = 'ffmpeg_sender'  #: NDI name for the sender
+    sine_freq: float = 1000.0           #: Frequency of the sine wave
+    sine_vol_dB: float = -20            #: Volume of the sine wave in dBVU
+    sample_rate: int = 48000            #: Sample rate of the audio
+    audio_channels: int = 2             #: Number of audio channels
+    audio_reference: AudioReference = AudioReference.dBVU #: Audio reference level
     ffmpeg: str = 'ffmpeg'              #: Name/Path of the "ffmpeg" executable
 
 
@@ -67,6 +78,84 @@ def parse_frame_rate(fr: str) -> Fraction:
         n = int(fr)
         d = 1
     return Fraction(n, d)
+
+class Signal:
+    """Signal helper
+
+    Allows for iteration over samples of a sine wave signal aligned with the
+    frame rate.
+    """
+    def __init__(self, opts: Options) -> None:
+        self.fps = parse_frame_rate(opts.fps)
+        self.opts = opts
+        self.amplitude = 10 ** (opts.sine_vol_dB / 20.0)
+        spf = opts.sample_rate / self.fps
+        if spf % 1 == 0:
+            samples_per_frame = [int(spf)]
+            max_samples_per_frame = int(spf)
+        else:
+            assert opts.sample_rate == 48000
+            if self.fps == Fraction(30000, 1001):
+                # These sample counts will align with the frame rate every 5 frames.
+                samples_per_frame = [
+                    1602, 1601, 1602, 1601, 1602,
+                ]
+            elif self.fps == Fraction(60000, 1001):
+                # These sample counts will align with the frame rate every 5 frames.
+                samples_per_frame = [
+                    801, 801, 801, 800, 801,
+                ]
+            total_samples = sum(samples_per_frame)
+            assert total_samples == spf * len(samples_per_frame)
+            max_samples_per_frame = max(samples_per_frame)
+        self.samples_per_frame = samples_per_frame
+        self.max_samples_per_frame = max_samples_per_frame
+
+        one_sample = Fraction(1, opts.sample_rate)
+        fc = 1 / Fraction(opts.sine_freq)
+        self.samples_per_cycle = fc / one_sample
+        self.cycles_per_frame = [spf / self.samples_per_cycle for spf in samples_per_frame]
+        self.total_samples = 0
+
+    @property
+    def time_offset(self) -> float:
+        """Time offset in seconds for the current frame."""
+        return self.total_samples / self.opts.sample_rate
+
+    def __iter__(self):
+        while True:
+            for spf in self.samples_per_frame:
+                sig = gen_sine_wave(
+                    sample_rate=self.opts.sample_rate,
+                    num_channels=self.opts.audio_channels,
+                    center_freq=self.opts.sine_freq,
+                    amplitude=self.amplitude,
+                    num_samples=spf,
+                    t_offset=self.time_offset,
+                )
+                assert sig.shape == (self.opts.audio_channels, spf)
+                yield sig
+                self.total_samples += spf
+
+
+def gen_sine_wave(
+    sample_rate: int,
+    num_channels: int,
+    center_freq: float,
+    num_samples: int,
+    amplitude: float = 1.0,
+    t_offset: float = 0.0,
+):
+    """Build a sine wave signal
+    """
+    t = np.arange(num_samples) / sample_rate
+    t += t_offset
+    sig = amplitude * np.sin(2 * np.pi * center_freq * t)
+    sig = np.reshape(sig, (1, num_samples))
+    if num_channels > 1:
+        sig = np.repeat(sig, num_channels, axis=0)
+    assert sig.shape == (num_channels, num_samples)
+    return sig.astype(np.float32)
 
 
 @contextmanager
@@ -101,8 +190,21 @@ def send(opts: Options) -> None:
     vf.set_frame_rate(fr)
     vf.set_fourcc(opts.pix_fmt.value)
 
-    # Add the VideoSendFrame to the sender
+    sig_generator = Signal(opts)
+    sample_iter = iter(sig_generator)
+
+    # Build an AudioSendFrame and set its properties to match the options argument
+    af = AudioSendFrame()
+    af.sample_rate = opts.sample_rate
+    af.num_channels = opts.audio_channels
+    af.reference_level = opts.audio_reference
+
+    # Set `max_num_samples` to the number of samples per frame
+    af.set_max_num_samples(sig_generator.max_samples_per_frame)
+
+    # Add the VideoSendFrame and AudioSendFrame to the sender
     sender.set_video_frame(vf)
+    sender.set_audio_frame(af)
 
     # Pre-allocate a bytearray to hold frame data and create a view of it
     # So we can buffer into it from ffmpeg then pass directly to the sender
@@ -135,9 +237,12 @@ def send(opts: Options) -> None:
                         break
                     continue
                 frame_sent = True
-                # Pass the memoryview directly to the sender
-                # (using the buffer protocol)
-                sender.write_video_async(mv)
+
+                # Write video and audio data to the sender.
+                # The video data is in the bytearray and passed as a memoryview.
+                # The audio data is the numpy array generated by the Signal helper.
+                samples = next(sample_iter)
+                sender.write_video_and_audio(mv, samples)
 
                 if i % 10 == 0:
                     ff_proc.poll()
@@ -171,6 +276,20 @@ def send(opts: Options) -> None:
     show_default=True,
     help='NDI name for the sender',
 )
+@click.option('-f', '--sine-freq', type=float, default=1000.0, show_default=True)
+@click.option(
+    '-s', '--sine-vol', type=float, default=-20.0, show_default=True,
+    help='Volume of the sine wave in dB (unit depends on audio reference)',
+)
+@click.option(
+    '--audio-reference',
+    type=click.Choice([m.name for m in AudioReference]),
+    default=AudioReference.dBVU.name,
+    show_default=True,
+    help='Audio reference level',
+)
+@click.option('--sample-rate', type=int, default=48000, show_default=True)
+@click.option('--audio-channels', type=int, default=2, show_default=True)
 @click.option(
     '--ffmpeg',
     type=str,
@@ -185,6 +304,11 @@ def main(
     y_res: int,
     fps: str,
     sender_name: str,
+    sine_freq: float,
+    sine_vol: float,
+    audio_reference: str,
+    sample_rate: int,
+    audio_channels: int,
     ffmpeg: str
 ):
     opts = Options(
@@ -193,6 +317,11 @@ def main(
         xres=x_res,
         yres=y_res,
         fps=fps,
+        sine_freq=sine_freq,
+        sine_vol_dB=sine_vol,
+        audio_reference=AudioReference[audio_reference],
+        sample_rate=sample_rate,
+        audio_channels=audio_channels,
         sender_name=sender_name,
         ffmpeg=ffmpeg,
     )

@@ -60,7 +60,7 @@ and shows them using `ffplay`_.
 :class:`~cyndilib.finder.Finder` is used to locate the :class:`~cyndilib.finder.Source`
 with the given name.
 
-A :class:`~cyndlib.receiver.Receiver` is then created and an instance of
+A :class:`~cyndilib.receiver.Receiver` is then created and an instance of
 :class:`~cyndilib.video_frame.VideoFrameSync` is added to it.
 
 Video frames are then read using the
@@ -68,7 +68,7 @@ Video frames are then read using the
 method which is available from the :attr:`~cyndilib.receiver.frame_sync` attribute
 on the receiver.
 
-The data is then fed to the :attr:`~subprocess.Popen.stdin` of the ``fplay``
+The data is then fed to the :attr:`~subprocess.Popen.stdin` of the ``ffplay``
 subprocess directly from the video frame using the
 :ref:`buffer protocol <frame-buffer-protocol>`.
 
@@ -79,9 +79,37 @@ subprocess directly from the video frame using the
     :name: ffplay_receiver
 
 
+.. _audio-player:
+
+Audio Player
+------------
+
+This example receives audio frames from an |NDI| :class:`~cyndilib.finder.Source`
+and plays them using the `sounddevice`_ library.
+
+:class:`~cyndilib.finder.Finder` is used to locate the :class:`~cyndilib.finder.Source`
+with the given name.
+
+A :class:`~cyndilib.receiver.Receiver` is then created and an instance of
+:class:`~cyndilib.audio_frame.AudioFrameSync` is added to it.
+
+Audio frames are then read using the
+:meth:`FrameSync.capture_audio <cyndilib.framesync.FrameSync.capture_audio>`
+method which is available from the :attr:`~cyndilib.receiver.frame_sync` attribute
+on the receiver.
+
+The audio data is then played using the `sounddevice`_ library.
+
+.. literalinclude:: ../../examples/audio_player.py
+    :language: python
+    :linenos:
+    :name: audio_player
+
+
 
 .. _ffmpeg: https://ffmpeg.org
 .. _ffplay: https://ffmpeg.org/ffplay.html
+.. _sounddevice: https://python-sounddevice.readthedocs.io
 
 PTZ
 ---
