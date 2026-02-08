@@ -115,12 +115,12 @@ class Signal:
         fc = 1 / Fraction(opts.sine_freq)
         self.samples_per_cycle = fc / one_sample
         self.cycles_per_frame = [spf / self.samples_per_cycle for spf in samples_per_frame]
-        self.frame_count = 0
+        self.total_samples = 0
 
     @property
     def time_offset(self) -> float:
         """Time offset in seconds for the current frame."""
-        return float(self.frame_count / self.fps)
+        return self.total_samples / self.opts.sample_rate
 
     def __iter__(self):
         while True:
@@ -135,7 +135,7 @@ class Signal:
                 )
                 assert sig.shape == (self.opts.audio_channels, spf)
                 yield sig
-                self.frame_count += 1
+                self.total_samples += spf
 
 
 def gen_sine_wave(
