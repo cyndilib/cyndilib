@@ -17,6 +17,18 @@ except ImportError:
     release = '0.0.0'
 version = release
 
+
+import subprocess
+
+try:
+    # Get the current commit SHA
+    commit_sha = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip().decode('ascii')
+except subprocess.CalledProcessError:
+    commit_sha = "main" # Fallback if git is unavailable
+
+
+repo_url = "https://github.com/cyndilib/cyndilib"
+
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
@@ -42,6 +54,10 @@ autodoc_docstring_signature = True
 
 intersphinx_mapping = {
     'python':('https://docs.python.org/', None),
+}
+
+extlinks = {
+    'github_permalink': (f'{repo_url}/blob/{commit_sha}/%s', 'View source on GitHub: %s'),
 }
 
 templates_path = ['_templates']

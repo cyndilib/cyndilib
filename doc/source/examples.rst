@@ -36,6 +36,7 @@ the sender will handle syncing the audio and video frames.
     :language: python
     :linenos:
     :name: ffmpeg_sender
+    :caption: :github_permalink:`examples/ffmpeg_sender.py`
 
 
 .. _asynchronous sending: https://docs.ndi.video/all/developing-with-ndi/sdk/ndi-send#asynchronous-sending
@@ -59,6 +60,7 @@ The audio and video data are then written using the Sender's
     :language: python
     :linenos:
     :name: audio_sender
+    :caption: :github_permalink:`examples/audio_sender.py`
 
 
 .. _ffplay-receiver:
@@ -89,6 +91,7 @@ subprocess directly from the video frame using the
     :language: python
     :linenos:
     :name: ffplay_receiver
+    :caption: :github_permalink:`examples/ffplay_receiver.py`
 
 
 .. _audio-player:
@@ -116,7 +119,7 @@ The audio data is then played using the `sounddevice`_ library.
     :language: python
     :linenos:
     :name: audio_player
-
+    :caption: :github_permalink:`examples/audio_player.py`
 
 
 .. _ffmpeg: https://ffmpeg.org
@@ -138,3 +141,4 @@ Various PTZ methods are then invoked.
     :language: python
     :linenos:
     :name: ptz
+    :caption: :github_permalink:`examples/ptz.py`
