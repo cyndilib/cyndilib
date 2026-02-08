@@ -140,12 +140,17 @@ ext_modules = [
         define_macros=ext_macros,
         # define_macros=[('CYTHON_TRACE', 1), ('CYTHON_TRACE_NOGIL', 1)]
     ),
+    Extension(
+        "cyndilib.wrapper._cyutility",
+        sources=["src/cyndilib/wrapper/_cyutility.cpp"],
+    ),
 ]
 
 ext_modules = cythonize(
     ext_modules,
     annotate=ANNOTATE,
     compiler_directives=compiler_directives,
+    shared_utility_qualified_name = 'cyndilib.wrapper._cyutility'
 )
 
 # From https://github.com/scikit-learn/scikit-learn/blob/3ee60a720aab3598668af3a3d7eb01d6958859be/setup.py#L106-L117
