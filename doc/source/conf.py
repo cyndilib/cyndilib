@@ -20,11 +20,13 @@ version = release
 
 import subprocess
 
+
 try:
     # Get the current commit SHA
     commit_sha = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip().decode('ascii')
-except subprocess.CalledProcessError:
-    commit_sha = "main" # Fallback if git is unavailable
+except (subprocess.CalledProcessError, FileNotFoundError, OSError):
+    commit_sha = "main"  # Fallback if git is unavailable
+
 
 
 repo_url = "https://github.com/cyndilib/cyndilib"
