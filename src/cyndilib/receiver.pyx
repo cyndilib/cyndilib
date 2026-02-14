@@ -420,11 +420,12 @@ cdef class Receiver:
         nothing was available before the timeout, the result will be
         :attr:`ReceiveFrameType.nothing`
         """
-        return self._receive(recv_type, timeout_ms)
+        cdef int ft_val = self._receive(recv_type, timeout_ms)
+        return <ReceiveFrameType>(ft_val)
 
-    cdef ReceiveFrameType _receive(
+    cdef int _receive(
         self, ReceiveFrameType recv_type, uint32_t timeout_ms
-    ) except *:
+    ) except -1:
         cdef VideoRecvFrame video_frame = self.video_frame
         cdef AudioRecvFrame audio_frame = self.audio_frame
         cdef MetadataRecvFrame metadata_frame = self.metadata_frame
@@ -468,7 +469,7 @@ cdef class Receiver:
             metadata_ptr = NULL
 
         if recv_type_flags != <int>recv_type:
-            recv_type = ReceiveFrameType(recv_type_flags)
+            recv_type = <ReceiveFrameType>recv_type_flags
 
         if not recv_type & ReceiveFrameType.recv_all:
             if buffers_full:
@@ -504,7 +505,7 @@ cdef class Receiver:
             else:
                 self.free_metadata(metadata_ptr)
 
-        return ft
+        return <int>ft
 
     cdef ReceiveFrameType _do_receive(
         self,
@@ -868,7 +869,7 @@ cdef class RecvThreadWorker:
         self.wait_time = wait_time
 
     cdef int run(self) except -1:
-        cdef ReceiveFrameType ft
+        cdef int ft
         self.running = True
         while self.running:
             if self.receiver._is_connected():
@@ -1020,7 +1021,7 @@ def test():
         connected = receiver.is_connected()
         print(f'connected: {connected}, num_connections: {nc}')
         print('receive…')
-        frame_type = receiver._receive(recv_type, 100)
+        frame_type = receiver.receive(recv_type, 100)
         print('frame_type: ', frame_type)
         # if connected:
         #     break
