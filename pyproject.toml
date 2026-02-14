@@ -106,7 +106,7 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-n auto --skip-flaky --no-success-flaky-report --doctest-modules --doctest-glob='*.rst'"
+addopts = "-n auto --no-success-flaky-report --doctest-modules --doctest-glob='*.rst'"
 
 
 [tool.cibuildwheel]
