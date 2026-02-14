@@ -116,9 +116,8 @@ skip = "*-musllinux*"
 before-all = "uv export --frozen --no-emit-project --no-build --only-group test -o pylock.toml"
 before-test = "uv pip install -r pylock.toml"
 test-command = [
-    "python {project}/build_tests.py",
     "uv pip uninstall setuptools",
-    "py.test --skip-flaky {project}/tests/",
+    "py.test -n=0 {project}/test_cibuildwheel.py",
 ]
 test-skip = "cp38-macosx*"
 environment = {CI= "true", CYNDILIB_BUILD_PARALLEL= "auto"}
