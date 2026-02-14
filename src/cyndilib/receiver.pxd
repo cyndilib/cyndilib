@@ -87,9 +87,9 @@ cdef class Receiver:
     cpdef ReceiveFrameType receive(
         self, ReceiveFrameType recv_type, uint32_t timeout_ms
     )
-    cdef ReceiveFrameType _receive(
+    cdef int _receive(
         self, ReceiveFrameType recv_type, uint32_t timeout_ms
-    ) except *
+    ) except -1
 
     cdef ReceiveFrameType _do_receive(
         self,
