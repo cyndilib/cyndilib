@@ -137,6 +137,8 @@ def test_send_video_and_audio_py(request, fake_av_frames: tuple[VideoParams, Aud
     sender = setup_sender(request, video_data, audio_data)
     vf = sender.video_frame
     af = sender.audio_frame
+    assert vf is not None
+    assert af is not None
 
     if vf:
         vf.set_metadata(b'<some_xml_tag />')
