@@ -191,11 +191,15 @@ cdef class VideoFrame:
     @property
     def frame_format(self) -> FrameFormat:
         """The current :class:`~.wrapper.ndi_structs.FrameFormat` type
+
+        .. versionadded:: 0.1.1
         """
         return self._get_frame_format()
 
     def set_frame_format(self, FrameFormat fmt) -> None:
         """Set the :class:`~.wrapper.ndi_structs.FrameFormat` type
+
+        .. versionadded:: 0.1.1
         """
         # Do an instance check here since `_set_frame_format` is declared
         # with `noexcept` and would possibly crash on invalid input.
@@ -207,6 +211,8 @@ cdef class VideoFrame:
     def is_progressive(self) -> bool:
         """True if the current :attr:`frame_format` is progressive, False if
         interlaced
+
+        .. versionadded:: 0.1.1
         """
         return self.frame_format == FrameFormat.progressive
 
@@ -226,6 +232,8 @@ cdef class VideoFrame:
         Arguments:
             value (bool): If True, set to progressive. If False, set to
                 interlaced.
+
+        .. versionadded:: 0.1.1
         """
         if value:
             self.set_frame_format(FrameFormat.progressive)
