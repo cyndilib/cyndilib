@@ -149,23 +149,30 @@ def video_frame_rate_extended(request) -> Fraction:
     return request.param
 
 
+@pytest.mark.parametrize(['is_progressive'], [
+    (True,),
+    (False,),
+])
 def test_video_frame_format_string(
     video_resolution_with_zeros: tuple[int, int],
     video_frame_rate_extended: Fraction,
+    is_progressive: bool
 ):
     width, height = video_resolution_with_zeros
     fr = video_frame_rate_extended
     vf = VideoFrame()
     vf.set_resolution(width, height)
     vf.set_frame_rate(fr)
+    vf.set_progressive(is_progressive)
     if fr.denominator == 1:
         fr_str = f'{fr.numerator}'
     else:
         fr_str = f'{float(fr):.2f}'
+    field_str = 'p' if is_progressive else 'i'
     if height == 0:
         expected_fmt_str = 'unknown'
     else:
-        expected_fmt_str = f'{height}p{fr_str}'
+        expected_fmt_str = f'{height}{field_str}{fr_str}'
     assert vf.get_format_string() == expected_fmt_str
 
 
