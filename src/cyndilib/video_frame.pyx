@@ -43,9 +43,9 @@ cdef class VideoFrame:
         cdef double fr_dbl = fr.numerator / <double>fr.denominator
         cdef str fr_str
         if fr_dbl % 1 == 0:
-            fr_str = f'{fr_dbl:.2f}'
-        else:
             fr_str = f'{fr_dbl:.0f}'
+        else:
+            fr_str = f'{fr_dbl:.2f}'
         return f'{yres}{fieldStr}{fr_str}'
 
     def get_resolution(self):
