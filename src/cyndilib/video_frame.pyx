@@ -213,6 +213,16 @@ cdef class VideoFrame:
     def set_progressive(self, bool value) -> None:
         """Set whether the video frame is progressive or interlaced
 
+        .. note::
+
+            Setting this to ``False`` will set the :attr:`frame_format` to
+            :attr:`~.wrapper.ndi_structs.FrameFormat.interleaved` which indicates
+            that the frame is a fielded, but complete frame (comprised of both fields).
+
+            If you want to specify individual fields, you should set the :attr:`frame_format`
+            directly to :attr:`~.wrapper.ndi_structs.FrameFormat.field_0` or
+            :attr:`~.wrapper.ndi_structs.FrameFormat.field_1` using the :meth:`set_frame_format` method.
+
         Arguments:
             value (bool): If True, set to progressive. If False, set to
                 interlaced.

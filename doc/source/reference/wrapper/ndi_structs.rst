@@ -41,6 +41,11 @@ FrameFormat
 
     Enum specifying the field type of a video frame
 
+    .. note::
+
+        This is **not** a flag enum.
+        This means that a video frame can only be one of these types at a time.
+
     .. attribute:: progressive
 
         A progressive frame (non-fielded)
