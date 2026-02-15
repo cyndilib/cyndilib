@@ -8,8 +8,8 @@ from cyndilib import AudioReference
 from cyndilib.video_frame import VideoSendFrame, VideoFrameSync
 from cyndilib.audio_frame import AudioSendFrame, AudioFrameSync
 from cyndilib.wrapper import FourCC
-from _bench_helpers import BenchSender      # type: ignore[missing-import]
-from _framesync_helpers import (  # type: ignore[missing-import]
+from _bench_helpers import BenchSender
+from _framesync_helpers import (
     VideoFrameSyncHelper,
     AudioFrameSyncHelper,
 )

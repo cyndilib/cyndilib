@@ -14,9 +14,9 @@ from cyndilib.locks import RLock, Condition
 
 from conftest import IS_CI_BUILD, AudioParams, VideoParams
 
-import _test_sender             # type: ignore[missing-import]
-import _test_audio_frame        # type: ignore[missing-import]
-import _test_send_frame_status  # type: ignore[missing-import]
+import _test_sender
+import _test_audio_frame
+import _test_send_frame_status
 
 NULL_INDEX = _test_send_frame_status.get_null_idx()
 MAX_FRAME_BUFFERS = _test_send_frame_status.get_max_frame_buffers()
@@ -137,6 +137,8 @@ def test_send_video_and_audio_py(request, fake_av_frames: tuple[VideoParams, Aud
     sender = setup_sender(request, video_data, audio_data)
     vf = sender.video_frame
     af = sender.audio_frame
+    assert vf is not None
+    assert af is not None
 
     if vf:
         vf.set_metadata(b'<some_xml_tag />')
