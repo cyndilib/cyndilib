@@ -208,7 +208,7 @@ cdef class VideoFrame:
         """True if the current :attr:`frame_format` is progressive, False if
         interlaced
         """
-        return FrameFormat.progressive in self.frame_format
+        return self.frame_format == FrameFormat.progressive
 
     def set_progressive(self, bool value) -> None:
         """Set whether the video frame is progressive or interlaced
@@ -217,18 +217,10 @@ cdef class VideoFrame:
             value (bool): If True, set to progressive. If False, set to
                 interlaced.
         """
-        if value is self.is_progressive:
-            return
-        fmt = self.frame_format
         if value:
-            fmt |= FrameFormat.progressive
-            fmt &= ~FrameFormat.interleaved
-            fmt &= ~FrameFormat.field_0
-            fmt &= ~FrameFormat.field_1
+            self.set_frame_format(FrameFormat.progressive)
         else:
-            fmt &= ~FrameFormat.progressive
-            fmt |= FrameFormat.interleaved
-        self.set_frame_format(fmt)
+            self.set_frame_format(FrameFormat.interleaved)
 
     cdef FrameFormat _get_frame_format(self) noexcept nogil:
         return frame_format_uncast(self.ptr.frame_format_type)
