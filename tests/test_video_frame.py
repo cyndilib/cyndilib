@@ -164,10 +164,11 @@ def test_video_frame_format_string(
     vf.set_resolution(width, height)
     vf.set_frame_rate(fr)
     vf.set_progressive(is_progressive)
-    if fr.denominator == 1:
-        fr_str = f'{fr.numerator}'
+    fr_float = float(fr)
+    if fr_float % 1 == 0:
+        fr_str = f'{fr_float:.0f}'
     else:
-        fr_str = f'{float(fr):.2f}'
+        fr_str = f'{fr_float:.2f}'
     field_str = 'p' if is_progressive else 'i'
     if height == 0:
         expected_fmt_str = 'unknown'
