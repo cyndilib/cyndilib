@@ -216,7 +216,7 @@ cdef class VideoFrame:
         """
         return self.frame_format == FrameFormat.progressive
 
-    def set_progressive(self, bool value) -> None:
+    def set_progressive(self, bint value) -> None:
         """Set whether the video frame is progressive or interlaced
 
         .. note::
