@@ -135,6 +135,7 @@ def video_resolution_with_zeros(request) -> tuple[int, int]:
         Fraction(25, 1),
         Fraction(30, 1),
         Fraction(30000, 1001),  # ~29.97
+        Fraction(50, 1),
         Fraction(60, 1),
         Fraction(60000, 1001),  # ~59.94
     ]
