@@ -101,6 +101,7 @@ dev = [
     "ipython",
     "snakeviz",
     "pytest-profiling",
+    "stubgen-pyx>=0.2.2",
 ]
 
 
