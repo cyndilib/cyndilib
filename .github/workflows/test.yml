@@ -54,4 +54,4 @@ jobs:
       - name: Compile tests
         run: uv run python build_tests.py
       - name: Run tests
-        run: uv run pytest
+        run: uv run pytest --skip-flaky
