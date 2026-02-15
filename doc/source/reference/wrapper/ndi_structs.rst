@@ -52,16 +52,18 @@ FrameFormat
 
     .. attribute:: interleaved
 
-        A fielded (interlaced) frame using field 0 for even lines and field 1
-        for odd
+        This is a frame of video that is comprised of two fields.
+        The upper field comes first, and the lower comes second.
 
     .. attribute:: field_0
 
-        Indicates the current data contains the even field
+        This is an individual field 0 from a fielded video frame.
+        This is the first temporal, upper field.
 
     .. attribute:: field_1
 
-        Indicates the current data contains the odd field
+        This is an individual field 1 from a fielded video frame.
+        This is the second temporal, lower field.
 
 
 FourCC
