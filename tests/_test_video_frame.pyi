@@ -104,7 +104,7 @@ def build_test_frames(
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def buffer_into_video_frame(vf: VideoRecvFrame, width: int, height: int, arr: memoryview, do_process: bool=True):
+def buffer_into_video_frame(vf: VideoRecvFrame, width: int, height: int, arr: memoryview|npt.NDArray[np.uint8], do_process: bool=True):
     ...
 
 def video_frame_process_events(vf: VideoRecvFrame):
