@@ -1,17 +1,106 @@
 from __future__ import annotations
 
+from typing import overload
+
 import cython
 import numpy as np
+import numpy.typing as npt
 from cyndilib.video_frame import VideoRecvFrame
 from cyndilib.wrapper import *
 
 RGBA_dtype = np.dtype([('r', np.uint8), ('g', np.uint8), ('b', np.uint8), ('a', np.uint8)], align=True)
 
-def build_test_frame(width: int, height: int, as_uint32: bool=True, as_flat_uint8: bool=False, as_structured: bool=False, x_offset: int=0):
+@overload
+def build_test_frame(
+    width: int,
+    height: int,
+    as_uint32: bool=False,
+    as_flat_uint8: bool=True,
+    as_structured: bool=False,
+    x_offset: int=0
+) -> npt.NDArray[np.uint8]:
+    ...
+@overload
+def build_test_frame(
+    width: int,
+    height: int,
+    as_uint32: bool=False,
+    as_flat_uint8: bool=False,
+    as_structured: bool=True,
+    x_offset: int=0
+) -> npt.NDArray[np.void]:
+    ...
+@overload
+def build_test_frame(
+    width: int,
+    height: int,
+    as_uint32: bool=False,
+    as_flat_uint8: bool=False,
+    as_structured: bool=False,
+    x_offset: int=0
+) -> npt.NDArray[np.uint8]:
+    ...
+@overload
+def build_test_frame(
+    width: int,
+    height: int,
+    as_uint32: bool=True,
+    as_flat_uint8: bool=False,
+    as_structured: bool=False,
+    x_offset: int=0
+) -> npt.NDArray[np.uint32]:
+    ...
+def build_test_frame(
+    width: int,
+    height: int,
+    as_uint32: bool=True,
+    as_flat_uint8: bool=False,
+    as_structured: bool=False,
+    x_offset: int=0
+) -> npt.NDArray[np.uint8]|npt.NDArray[np.uint32]|npt.NDArray[np.void]:
     ...
 
-def build_test_frames(width: int, height: int, num_frames: int, as_uint32: bool=True, as_flat_uint8: bool=False, as_structured: bool=False):
+
+@overload
+def build_test_frames(
+    width: int,
+    height: int,
+    num_frames: int,
+    as_uint32: bool=False,
+    as_flat_uint8: bool=False,
+    as_structured: bool=True
+) -> npt.NDArray[np.void]:
     ...
+@overload
+def build_test_frames(
+    width: int,
+    height: int,
+    num_frames: int,
+    as_uint32: bool=False,
+    as_flat_uint8: bool=False,
+    as_structured: bool=False
+) -> npt.NDArray[np.uint8]:
+    ...
+@overload
+def build_test_frames(
+    width: int,
+    height: int,
+    num_frames: int,
+    as_uint32: bool=True,
+    as_flat_uint8: bool=False,
+    as_structured: bool=False
+) -> npt.NDArray[np.uint32]:
+    ...
+def build_test_frames(
+    width: int,
+    height: int,
+    num_frames: int,
+    as_uint32: bool=True,
+    as_flat_uint8: bool=False,
+    as_structured: bool=False
+) -> npt.NDArray[np.uint8]|npt.NDArray[np.uint32]|npt.NDArray[np.void]:
+    ...
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
