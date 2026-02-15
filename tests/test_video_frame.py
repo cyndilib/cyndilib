@@ -1,8 +1,9 @@
 import time
 import numpy as np
 import pytest
+from fractions import Fraction
 
-from cyndilib.video_frame import VideoRecvFrame, VideoSendFrame, VideoFrameSync
+from cyndilib.video_frame import VideoFrame, VideoRecvFrame, VideoSendFrame, VideoFrameSync
 from cyndilib.wrapper import FourCC
 from _test_video_frame import (             # type: ignore[missing-import]
     build_test_frame, build_test_frames,
@@ -110,6 +111,71 @@ def test_video_send_frame(fake_video_frames: VideoParams):
     vf.destroy()
     assert vf.write_index == 0
     assert vf.read_index == NULL_INDEX
+
+
+@pytest.fixture(
+    params=[
+        (0, 0),
+        (640, 360),
+        (1280, 720),
+        (1920, 1080),
+        (2560, 1440),
+        (3840, 2160),
+    ]
+)
+def video_resolution_with_zeros(request) -> tuple[int, int]:
+    """Include a resolution beyond the `video_resolution` fixture, but with
+    zero dimensions to test handling of edge cases.
+    """
+    return request.param
+
+@pytest.fixture(
+    params=[
+        Fraction(24, 1),
+        Fraction(25, 1),
+        Fraction(30, 1),
+        Fraction(30000, 1001),  # ~29.97
+        Fraction(50, 1),
+        Fraction(60, 1),
+        Fraction(60000, 1001),  # ~59.94
+    ]
+)
+def video_frame_rate_extended(request) -> Fraction:
+    """Extra frame rates to test beyond the common ones found in the
+    `video_frame_rate` fixture.
+
+    Added here to avoid adding more time-consuming test cases to the rest of
+    the test suite.
+    """
+    return request.param
+
+
+@pytest.mark.parametrize(['is_progressive'], [
+    (True,),
+    (False,),
+])
+def test_video_frame_format_string(
+    video_resolution_with_zeros: tuple[int, int],
+    video_frame_rate_extended: Fraction,
+    is_progressive: bool
+):
+    width, height = video_resolution_with_zeros
+    fr = video_frame_rate_extended
+    vf = VideoFrame()
+    vf.set_resolution(width, height)
+    vf.set_frame_rate(fr)
+    vf.set_progressive(is_progressive)
+    fr_float = float(fr)
+    if fr_float % 1 == 0:
+        fr_str = f'{fr_float:.0f}'
+    else:
+        fr_str = f'{fr_float:.2f}'
+    field_str = 'p' if is_progressive else 'i'
+    if height == 0:
+        expected_fmt_str = 'unknown'
+    else:
+        expected_fmt_str = f'{height}{field_str}{fr_str}'
+    assert vf.get_format_string() == expected_fmt_str
 
 
 def test_frame_sync(fake_video_frames: VideoParams):

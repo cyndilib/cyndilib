@@ -7,6 +7,10 @@ import numpy as np
 
 from .wrapper.ndi_structs cimport fourcc_pack_info_init
 
+# Import FrameFormat as a Python type for isinstance checks.
+# Otherwise, cython will try to do a global module lookup (which will fail).
+from .wrapper.ndi_structs import FrameFormat as _FrameFormatPy
+
 
 __all__ = ('VideoFrame', 'VideoRecvFrame', 'VideoFrameSync', 'VideoSendFrame')
 
@@ -43,9 +47,9 @@ cdef class VideoFrame:
         cdef double fr_dbl = fr.numerator / <double>fr.denominator
         cdef str fr_str
         if fr_dbl % 1 == 0:
-            fr_str = f'{fr_dbl:.2f}'
-        else:
             fr_str = f'{fr_dbl:.0f}'
+        else:
+            fr_str = f'{fr_dbl:.2f}'
         return f'{yres}{fieldStr}{fr_str}'
 
     def get_resolution(self):
@@ -183,6 +187,58 @@ cdef class VideoFrame:
         return self.ptr.picture_aspect_ratio
     cdef void _set_aspect(self, float value) noexcept nogil:
         self.ptr.picture_aspect_ratio = value
+
+    @property
+    def frame_format(self) -> FrameFormat:
+        """The current :class:`~.wrapper.ndi_structs.FrameFormat` type
+
+        .. versionadded:: 0.1.1
+        """
+        return self._get_frame_format()
+
+    def set_frame_format(self, FrameFormat fmt) -> None:
+        """Set the :class:`~.wrapper.ndi_structs.FrameFormat` type
+
+        .. versionadded:: 0.1.1
+        """
+        # Do an instance check here since `_set_frame_format` is declared
+        # with `noexcept` and would possibly crash on invalid input.
+        if not isinstance(fmt, _FrameFormatPy):
+            raise ValueError(f'Expected FrameFormat, got {type(fmt)}')
+        self._set_frame_format(fmt)
+
+    @property
+    def is_progressive(self) -> bool:
+        """True if the current :attr:`frame_format` is progressive, False if
+        interlaced
+
+        .. versionadded:: 0.1.1
+        """
+        return self.frame_format == FrameFormat.progressive
+
+    def set_progressive(self, bool value) -> None:
+        """Set whether the video frame is progressive or interlaced
+
+        .. note::
+
+            Setting this to ``False`` will set the :attr:`frame_format` to
+            :attr:`~.wrapper.ndi_structs.FrameFormat.interleaved` which indicates
+            that the frame is a fielded, but complete frame (comprised of both fields).
+
+            If you want to specify individual fields, you should set the :attr:`frame_format`
+            directly to :attr:`~.wrapper.ndi_structs.FrameFormat.field_0` or
+            :attr:`~.wrapper.ndi_structs.FrameFormat.field_1` using the :meth:`set_frame_format` method.
+
+        Arguments:
+            value (bool): If True, set to progressive. If False, set to
+                interlaced.
+
+        .. versionadded:: 0.1.1
+        """
+        if value:
+            self.set_frame_format(FrameFormat.progressive)
+        else:
+            self.set_frame_format(FrameFormat.interleaved)
 
     cdef FrameFormat _get_frame_format(self) noexcept nogil:
         return frame_format_uncast(self.ptr.frame_format_type)
