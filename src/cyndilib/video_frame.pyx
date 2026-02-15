@@ -7,6 +7,10 @@ import numpy as np
 
 from .wrapper.ndi_structs cimport fourcc_pack_info_init
 
+# Import FrameFormat as a Python type for isinstance checks.
+# Otherwise, cython will try to do a global module lookup (which will fail).
+from .wrapper.ndi_structs import FrameFormat as _FrameFormatPy
+
 
 __all__ = ('VideoFrame', 'VideoRecvFrame', 'VideoFrameSync', 'VideoSendFrame')
 
@@ -183,6 +187,21 @@ cdef class VideoFrame:
         return self.ptr.picture_aspect_ratio
     cdef void _set_aspect(self, float value) noexcept nogil:
         self.ptr.picture_aspect_ratio = value
+
+    @property
+    def frame_format(self) -> FrameFormat:
+        """The current :class:`~.wrapper.ndi_structs.FrameFormat` type
+        """
+        return self._get_frame_format()
+
+    def set_frame_format(self, FrameFormat fmt) -> None:
+        """Set the :class:`~.wrapper.ndi_structs.FrameFormat` type
+        """
+        # Do an instance check here since `_set_frame_format` is declared
+        # with `noexcept` and would possibly crash on invalid input.
+        if not isinstance(fmt, _FrameFormatPy):
+            raise ValueError(f'Expected FrameFormat, got {type(fmt)}')
+        self._set_frame_format(fmt)
 
     cdef FrameFormat _get_frame_format(self) noexcept nogil:
         return frame_format_uncast(self.ptr.frame_format_type)
