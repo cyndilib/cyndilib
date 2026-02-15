@@ -11,7 +11,7 @@ from cyndilib.audio_reference import AudioReference, AudioReferenceConverter
 from cyndilib import AudioFrameSync, AudioRecvFrame, AudioSendFrame
 from cyndilib.sender import Sender
 from conftest import AudioInitParams, AudioParams
-import _test_audio_frame  # type: ignore[missing-import]
+import _test_audio_frame
 
 
 ReferenceAmplitude = Literal['0.063', '0.1', '0.63', '1.0', '5.01', '10.0']
