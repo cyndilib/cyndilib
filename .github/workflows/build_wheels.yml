@@ -116,7 +116,7 @@ jobs:
         #   output-dir: wheelhouse
         #   config-file: "{package}/pyproject.toml"
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: ${{ steps.build_wheel.outcome }} == "success"
         with:
           path: ./wheelhouse/*.whl
@@ -130,7 +130,7 @@ jobs:
       permissions:
         id-token: write
       steps:
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: wheel-*
           path: dist
