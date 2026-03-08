@@ -448,7 +448,7 @@ cdef class FinderThreadWorker:
             if self.finder.num_sources == 0:
                 sleep(.1)
             else:
-                self.sleep_evt._wait(True, 5)
+                self.sleep_evt._wait(False, 5)
             # self.waiting.clear()
         self.finder.finder_thread_running._clear()
         self.finder = None
