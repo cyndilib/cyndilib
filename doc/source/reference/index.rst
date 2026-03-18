@@ -15,6 +15,7 @@ Reference
    receiver
    framesync
    sender
+   router
    video_frame
    audio_frame
    metadata_frame
