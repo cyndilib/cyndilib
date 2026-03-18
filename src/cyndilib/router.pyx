@@ -383,8 +383,11 @@ cdef class RoutingMatrix:
         for dest_name, source_name in routing_table.items():
             if source_name is not None:
                 self.make_route(dest_name, source_name)
-            elif self.router_exists(dest_name):
-                self.add_router_by_name(dest_name)
+            else:
+                if not self.router_exists(dest_name):
+                    self.add_router_by_name(dest_name)
+                else:
+                    self.clear_route(dest_name)
 
     def router_exists(self, str name):
         """Check if a router with the given name exists in the routing matrix
