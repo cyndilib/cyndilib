@@ -131,3 +131,46 @@ def test_routing_matrix_prepopulated(request):
             # so we can only check that the routing table is correct
             assert matrix.get_routing_table()[rname] == sname
         assert matrix.get_routing_table() == routing_table
+
+
+def test_routing_matrix_reassignment(request):
+    router_names = [
+        build_unique_name(request, suffix=f'router{i}')
+        for i in range(3)
+    ]
+    source_names = [
+        build_unique_name(request, suffix=f'source{i}')
+        for i in range(3)
+    ]
+    routing_table = {rname: sname for rname, sname in zip(router_names, source_names)}
+    matrix = RoutingMatrix()
+    with matrix:
+        matrix.set_routing_table(routing_table)
+        for rname, sname in routing_table.items():
+            router = matrix.get_router_by_name(rname)
+            assert router is not None
+            assert router.is_open
+            assert router.dest_stream_name == rname
+            # we don't have a source stream since it doesn't exist,
+            # so we can only check that the routing table is correct
+            assert matrix.get_routing_table()[rname] == sname
+
+        # Assign `None` to all routes and check that they are cleared correctly
+        for rname in router_names:
+            matrix.set_routing_table({rname: None})
+            router = matrix.get_router_by_name(rname)
+            assert router is not None
+            assert router.is_open
+            assert router.dest_stream_name == rname
+            assert matrix.get_routing_table()[rname] is None
+
+        # Reassign original routing table and check that it is updated correctly
+        matrix.set_routing_table(routing_table)
+        for rname, sname in routing_table.items():
+            router = matrix.get_router_by_name(rname)
+            assert router is not None
+            assert router.is_open
+            assert router.dest_stream_name == rname
+            # we don't have a source stream since it doesn't exist,
+            # so we can only check that the routing table is correct
+            assert matrix.get_routing_table()[rname] == sname
