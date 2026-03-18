@@ -59,7 +59,6 @@ cdef class Router:
         self.ptr = NULL
         if ptr is not NULL:
             NDIlib_routing_destroy(ptr)
-            self.ptr = NULL
 
     @property
     def source_host_name(self):
