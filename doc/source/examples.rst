@@ -122,6 +122,26 @@ The audio data is then played using the `sounddevice`_ library.
     :caption: :github_permalink:`examples/audio_player.py`
 
 
+
+.. _router:
+
+Router
+------
+
+This example demonstrates the use of the :mod:`~cyndilib.router` module to create virtual
+|NDI| sources on the network.
+
+A :class:`~cyndilib.router.RoutingMatrix` is created which manages multiple :class:`~cyndilib.router.Router`
+instances (specified by the command line arguments).
+
+.. literalinclude:: ../../examples/router.py
+    :language: python
+    :linenos:
+    :name: router
+    :caption: :github_permalink:`examples/router.py`
+
+
+
 .. _ffmpeg: https://ffmpeg.org
 .. _ffplay: https://ffmpeg.org/ffplay.html
 .. _sounddevice: https://python-sounddevice.readthedocs.io
