@@ -166,6 +166,15 @@ cdef class Router:
             raise RuntimeError("Router is not open")
         return 0
 
+    cdef bint _get_is_active(self) except -1:
+        if not self._is_open:
+            return False
+        if self.source_ptr is NULL or self.dest_ptr is NULL:
+            return False
+        if not self.source.valid:
+            return False
+        return True
+
     def open(self):
         """Open the routing instance
         """
@@ -181,6 +190,13 @@ cdef class Router:
         """Whether the routing instance is currently open
         """
         return self._is_open
+
+    @property
+    def is_active(self):
+        """Whether the routing instance is currently active
+        (i.e. has a valid source connected and is open)
+        """
+        return self._get_is_active()
 
     def routing_change(self, Source source):
         """Change the routing to the specified source
