@@ -92,6 +92,8 @@ def test_routing_matrix(request):
         # Remove one router and check that it is removed correctly
         matrix.remove_router_by_name(router_names[0])
         assert not matrix.router_exists(router_names[0])
+        with pytest.raises(KeyError):
+            matrix.remove_router_by_name(router_names[0])
         del router_names[0]
     assert not matrix.is_open
     assert not matrix.finder.is_open
