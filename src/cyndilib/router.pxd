@@ -34,6 +34,7 @@ cdef class Router:
     cdef int _close(self) except -1
     cdef bint _routing_change(self, Source source) except -1
     cdef bint _routing_clear(self) except -1
+    cdef int _get_num_connections(self) except -1 nogil
     cdef int _ensure_open(self) except -1
 
 

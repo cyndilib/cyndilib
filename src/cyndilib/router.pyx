@@ -153,6 +153,14 @@ cdef class Router:
             self.source = None
         return result
 
+    cdef int _get_num_connections(self) except -1 nogil:
+        if self.ptr is NULL:
+            return 0
+        cdef int num_connections = NDIlib_routing_get_no_connections(self.ptr, 0)
+        if num_connections < 0:
+            num_connections = 0
+        return num_connections
+
     cdef int _ensure_open(self) except -1:
         if not self._is_open:
             raise RuntimeError("Router is not open")
@@ -191,6 +199,11 @@ cdef class Router:
 
         """
         return self._routing_clear()
+
+    def get_num_connections(self):
+        """Get the current number of receivers connected to this router
+        """
+        return self._get_num_connections()
 
     def __enter__(self):
         self._open()
