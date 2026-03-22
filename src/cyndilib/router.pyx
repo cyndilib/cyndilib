@@ -457,8 +457,6 @@ cdef class RoutingMatrix:
             KeyError: If a router with the given name does not exist in the routing matrix
         """
         cdef cpp_string cpp_name = name.encode('utf-8')
-        if not self._router_exists(cpp_name):
-            raise KeyError(f"Router with name '{name}' does not exist")
         cdef Router router = self._get_router_by_cpp_name(cpp_name)
         self._remove_router(router)
 
