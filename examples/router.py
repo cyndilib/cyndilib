@@ -94,7 +94,7 @@ def main(routing_table: dict[str, str | None], duration: float|None):
                     bar.update(1, current_item=matrix)
                     if duration_ms is not None:
                         i += 1
-                        if i > n_steps:
+                        if i >= n_steps:
                             break
                 except KeyboardInterrupt:
                     break
