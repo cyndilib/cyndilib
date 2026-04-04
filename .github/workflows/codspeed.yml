@@ -3,7 +3,22 @@ name: Codspeed
 on:
   push:
     branches: [main]
+    paths:
+      - "pyproject.toml"
+      - "setup.py"
+      - "setup.cfg"
+      - "src/**"
+      - "tests/**"
+      - ".github/workflows/codspeed.yml"
   pull_request:
+    branches: [main]
+    paths:
+      - "pyproject.toml"
+      - "setup.py"
+      - "setup.cfg"
+      - "src/**"
+      - "tests/**"
+      - ".github/workflows/codspeed.yml"
 
   workflow_dispatch:
 
