@@ -9,7 +9,11 @@ on:
 
 jobs:
   benchmark:
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: codspeed-macro
+    strategy:
+      fail-fast: false
+      matrix:
+        instrumentation-mode: [simulation, walltime]
     steps:
       - uses: actions/checkout@v6
 
@@ -34,5 +38,5 @@ jobs:
       - name: Run benchmarks
         uses: CodSpeedHQ/action@v4
         with:
-          mode: simulation
+          mode: ${{ matrix.instrumentation-mode }}
           run: uv run py.test tests/ --codspeed -n=0
