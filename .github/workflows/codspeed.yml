@@ -10,6 +10,7 @@ on:
       - "src/**"
       - "tests/**"
       - ".github/workflows/codspeed.yml"
+      - "uv.lock"
   pull_request:
     branches: [main]
     paths:
@@ -19,6 +20,7 @@ on:
       - "src/**"
       - "tests/**"
       - ".github/workflows/codspeed.yml"
+      - "uv.lock"
 
   workflow_dispatch:
 
