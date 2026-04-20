@@ -56,6 +56,7 @@ autodoc_docstring_signature = True
 
 intersphinx_mapping = {
     'python':('https://docs.python.org/', None),
+    'numpy':('https://numpy.org/doc/stable/', None),
 }
 
 extlinks = {
