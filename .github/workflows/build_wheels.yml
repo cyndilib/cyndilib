@@ -44,13 +44,13 @@ on:
 
 jobs:
   build_wheels:
-    name: Build wheels on ${{ matrix.os }}_${{ matrix.python-version }}-${{ matrix.arch }}
+    name: Build wheels on ${{ matrix.os }}_${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     env:
       CIBW_ARCHS: |-
         ${{ case(
           matrix.os == 'macos-15-intel', 'x86_64',
-          matrix.os == 'macos-latest' && matrix.arch == 'arm64', 'arm64',
+          startsWith(matrix.os, 'blacksmith') && contains(matrix.os, 'macos'), 'arm64',
           startsWith(matrix.os, 'blacksmith') && contains(matrix.os, 'ubuntu') && !contains(matrix.os, 'arm'), 'x86_64',
           startsWith(matrix.os, 'blacksmith') && contains(matrix.os, 'ubuntu') && contains(matrix.os, 'arm'), 'aarch64',
           startsWith(matrix.os, 'blacksmith') && contains(matrix.os, 'windows'), 'AMD64',
@@ -60,17 +60,12 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["cp310", "cp311", "cp312", "cp313", "cp314"]
-        os: [ "blacksmith-2vcpu-ubuntu-2404", "blacksmith-2vcpu-windows-2025", "blacksmith-4vcpu-ubuntu-2404-arm"]
-        include:
-        - os: macos-15-intel
-          arch: x86_64
-          python-version: "cp3{10,11}"
-        - os: macos-15-intel
-          arch: x86_64
-          python-version: "cp3{12,13,14}"
-        - os: macos-latest
-          arch: arm64
-          python-version: "cp3{10,11,12,13,14}"
+        os:
+          - "blacksmith-2vcpu-ubuntu-2404"
+          - "blacksmith-2vcpu-windows-2025"
+          - "blacksmith-4vcpu-ubuntu-2404-arm"
+          - "blacksmith-6vcpu-macos-latest"
+          - "macos-15-intel"
 
     steps:
       - uses: actions/checkout@v6
