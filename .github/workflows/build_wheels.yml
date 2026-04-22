@@ -44,7 +44,7 @@ on:
 
 jobs:
   build_wheels:
-    name: Build wheels on ${{ matrix.os }}_${{ matrix.python-version }}-${{ matrix.arch }}
+    name: Build wheels on ${{ matrix.os }}_${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     env:
       CIBW_ARCHS: |-
@@ -65,13 +65,7 @@ jobs:
           - "blacksmith-2vcpu-windows-2025"
           - "blacksmith-4vcpu-ubuntu-2404-arm"
           - "blacksmith-6vcpu-macos-latest"
-        include:
-        - os: macos-15-intel
-          arch: x86_64
-          python-version: "cp3{10,11}"
-        - os: macos-15-intel
-          arch: x86_64
-          python-version: "cp3{12,13,14}"
+          - "macos-15-intel"
 
     steps:
       - uses: actions/checkout@v6
