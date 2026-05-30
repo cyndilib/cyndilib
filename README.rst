@@ -64,7 +64,18 @@ First clone or download the repository::
     cd cyndilib
 
 
-The project can then be installed with::
+uv installation
+---------------
+
+The project and all of its dependencies can be installed using astral's `uv <https://docs.astral.sh/uv/>`_ package manager::
+
+    uv sync
+
+
+pip installation
+----------------
+
+Or alternatively using ``pip``::
 
     pip install .
 
@@ -81,7 +92,7 @@ specifications introduced `PEP 517`_).
 
 
 Parallel Builds
-^^^^^^^^^^^^^^^
+---------------
 
 There are quite a few sources to compile and by default, they will be compiled
 one at a time.  There is currently not a direct way to tell pip to use multiple
@@ -91,11 +102,15 @@ An environment variable ``CYNDILIB_BUILD_PARALLEL`` may be used to work around
 this however.  Its value can be either a specific number of threads to use
 or ``"auto"`` to use all available cores::
 
+    CYNDILIB_BUILD_PARALLEL=auto uv sync
+
+or with pip::
+
     CYNDILIB_BUILD_PARALLEL=auto pip install .
 
 
 Further Information
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 More information on compilation and development can be found on the
 `development page <https://cyndilib.readthedocs.io/en/latest/development.html>`_

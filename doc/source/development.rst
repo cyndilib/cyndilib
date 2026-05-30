@@ -16,9 +16,23 @@ First clone or download the repository::
 Build Dependencies
 ------------------
 
-The build dependencies can be installed with::
+.. _build-dependencies-uv:
+
+Using uv
+^^^^^^^^
+
+The project and all of its dependencies can be installed using astral's `uv <https://docs.astral.sh/uv/>`_ package manager::
+
+    uv sync
+
+
+Using pip
+^^^^^^^^^
+
+Or alternatively using ``pip``::
 
     pip install setuptools cython numpy
+    pip install -e .
 
 
 
@@ -31,9 +45,10 @@ in-place (next to the source files themselves)::
 
     python setup.py build_ext --inplace
 
-Then install in "editable" mode::
 
-    pip install -e .
+This is done when the project is initially installed, but after making changes to the source code,
+the modules must be recompiled for the changes to take effect.
+
 
 
 Options
@@ -75,6 +90,11 @@ Test dependencies can be installed with::
 
     pip install pytest pytest-doctestplus psutil
 
+
+.. note::
+
+    If using :ref:`uv <build-dependencies-uv>`, this step can be skipped as all
+    dependencies will already be installed.
 
 
 Test Compilation
@@ -122,6 +142,11 @@ The dependencies can be installed with::
 
     pip install -r doc/requirements.txt
 
+
+.. note::
+
+    If using :ref:`uv <build-dependencies-uv>`, this step can be skipped as all
+    dependencies will already be installed.
 
 Since the `autodoc`_ extension is used, the modules must be
 :ref:`compiled <build-extensions>` before building the docs::
