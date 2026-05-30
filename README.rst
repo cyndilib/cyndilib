@@ -1,6 +1,9 @@
 cyndilib
 ########
 
+|uv badge| |actions badge| |codspeed badge| |PyPI version| |PyPI license| |PyPI pyversions| |PyPI download week|
+
+
 A Python wrapper for `NDI®`_ written in `Cython`_
 
 
@@ -129,6 +132,35 @@ guidelines and corrections will be made if discovered otherwise.
 
 Liability for derivative works, etc falls under the responsibility of their authors.
 
+
+
+.. |uv badge| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json
+  :alt: uv
+  :target: https://docs.astral.sh/uv/
+
+.. |actions badge| image:: https://img.shields.io/github/actions/workflow/status/cyndilib/cyndilib/build_wheels.yml
+  :alt: GitHub Actions Workflow Status
+  :target: https://github.com/cyndilib/cyndilib/actions
+
+.. |codspeed badge| image:: https://img.shields.io/endpoint?url=https://codspeed.io/badge.json
+  :alt: CodSpeed Badge
+  :target: https://codspeed.io/cyndilib/cyndilib
+
+.. |PyPI version| image:: https://img.shields.io/pypi/v/cyndilib.svg
+  :alt: PyPI version
+  :target: https://pypi.python.org/pypi/cyndilib/
+
+.. |PyPI license| image:: https://img.shields.io/pypi/l/cyndilib.svg
+  :alt: PyPI license
+  :target: https://pypi.python.org/pypi/cyndilib/
+
+.. |PyPI pyversions| image:: https://img.shields.io/pypi/pyversions/cyndilib.svg
+  :alt: PyPI Python versions
+  :target: https://pypi.python.org/pypi/cyndilib/
+
+.. |PyPI download week| image:: https://img.shields.io/pypi/dw/cyndilib.svg
+  :alt: PyPI download week
+  :target: https://pypi.python.org/pypi/cyndilib/
 
 
 .. _NDI®: https://ndi.video
