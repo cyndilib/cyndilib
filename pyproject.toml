@@ -129,6 +129,9 @@ before-all = [
     "uv export --frozen --no-emit-project --no-build --only-group test -o pylock.toml",
 ]
 
+[tool.cibuildwheel.windows]
+repair-wheel-command = ""
+
 [[tool.cibuildwheel.overrides]]
 select = "*-musllinux*"
 before-all = [
