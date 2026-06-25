@@ -337,7 +337,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "click" },
-    { name = "cython", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'", specifier = "<3.2.6" },
+    { name = "cython", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'", specifier = "<3.2.7" },
     { name = "cython", marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'", specifier = "<=3.1.5" },
     { name = "flaky" },
     { name = "furo" },
@@ -368,7 +368,7 @@ examples = [
     { name = "sounddevice", specifier = ">=0.5.5" },
 ]
 test = [
-    { name = "cython", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'", specifier = "<3.2.6" },
+    { name = "cython", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'", specifier = "<3.2.7" },
     { name = "cython", marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'", specifier = "<=3.1.5" },
     { name = "flaky" },
     { name = "numpy" },
