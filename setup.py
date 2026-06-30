@@ -142,7 +142,7 @@ ext_modules = [
     ),
     Extension(
         "cyndilib.wrapper._cyutility",
-        sources=["src/cyndilib/wrapper/_cyutility.cpp"],
+        sources=["src/cyndilib/wrapper/_cyutility.c"],
     ),
 ]
 
