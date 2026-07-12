@@ -85,7 +85,7 @@ test = [
     "pytest-codspeed>=4.0.0",
 ]
 doc = [
-    "Sphinx>=5.0,<6.0; python_version<'3.13'",
+    "Sphinx>=9.1,<9.2; python_version<'3.13'",
     "Sphinx>=9.0; python_version>='3.13'",
     "standard-imghdr;python_version>='3.13'",
     "furo",
