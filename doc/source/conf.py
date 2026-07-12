@@ -6,6 +6,19 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import os
+
+# EXTREMELY IMPORTANT: Ignore native module type stubs for autodoc
+# This prevents Sphinx from trying to import type stubs for native modules,
+# which will cause import errors with extensions that rely on native modules.
+#
+# This was added in https://github.com/sphinx-doc/sphinx/pull/13446 triggered
+# by https://github.com/sphinx-doc/sphinx/issues/13415
+#
+# There is no documentation for this option, which would've saved hours of
+# trying to monkeypatch things to work with Sphinx >= 8.0.
+os.environ["SPHINX_AUTODOC_IGNORE_NATIVE_MODULE_TYPE_STUBS"] = "1"
+
 project = 'cyndilib'
 copyright = '2022, Matthew Reid'
 author = 'Matthew Reid'
