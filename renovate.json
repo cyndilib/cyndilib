@@ -19,8 +19,7 @@
     },
     {
       "matchManagers": ["github-actions"],
-      "groupName": "github-actions-all",
-      "groupMilestone": true
+      "groupName": "github-actions-all"
     }
   ],
   "lockFileMaintenance": {
