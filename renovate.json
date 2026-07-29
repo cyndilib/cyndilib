@@ -4,6 +4,8 @@
     "config:best-practices"
   ],
   "labels": ["dependencies"],
+  "minimumReleaseAge": "7 days",
+  "rebaseWhen": "conflicted",
   "packageRules": [
     {
       "matchPackageNames": ["cython"],
@@ -14,6 +16,10 @@
       "matchFileNames": [".github/workflows/codspeed.yml"],
       "matchPackageNames": ["actions/python-versions"],
       "allowedVersions": "3.13"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "github-actions-all"
     }
   ],
   "lockFileMaintenance": {
