@@ -163,8 +163,8 @@ cdef class MetadataRecvFrame(MetadataFrame):
             if tag is not None:
                 self.tag = tag
                 self.attrs = attrs
-
-        NDIlib_recv_free_metadata(recv_ptr, self.ptr)
+        if recv_ptr is not NULL:
+            NDIlib_recv_free_metadata(recv_ptr, self.ptr)
         return 0
 
 
