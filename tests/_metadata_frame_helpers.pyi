@@ -1,0 +1,6 @@
+
+from cyndilib.metadata_frame import MetadataFrame, MetadataRecvFrame
+
+def set_metadata_frame_data(frame: MetadataRecvFrame, xml_data: str) -> None: ...
+
+def get_metadata_frame_data(frame: MetadataFrame) -> str: ...
