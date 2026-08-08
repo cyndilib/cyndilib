@@ -160,6 +160,7 @@ cdef class MetadataSendFrame(MetadataFrame):
         self.tag = tag
         cdef dict d = {}
         if initdict is not None:
+            assert isinstance(initdict, dict)
             d.update(initdict)
         d.update(kwargs)
         self.attrs.update(d)
