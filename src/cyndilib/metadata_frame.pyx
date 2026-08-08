@@ -95,10 +95,10 @@ cdef class MetadataFrame:
         """
         self.tag = tag
 
-    def get(self, str tag):
+    def get(self, str key):
         """Get the value of the attribute with the given name
         """
-        return self.attrs.get(tag)
+        return self.attrs.get(key)
 
     def keys(self):
         """Get the attribute names for this metadata frame
