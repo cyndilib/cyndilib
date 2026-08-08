@@ -9,6 +9,18 @@ from cyndilib import MetadataRecvFrame, MetadataSendFrame
 from cyndilib.metadata_frame import parse_xml
 
 
+def normalize_xml(xml: str) -> str:
+    """Normalize XML string for comparison
+
+    This function removes whitespace and newlines from the XML string
+    to make it easier to compare XML strings that may have different
+    formatting.
+    """
+    result = ''.join(xml.split())
+    if result.endswith(' />'):
+        result = result[:-3] + '/>'
+    return result
+
 class XMLResult(NamedTuple):
     tag: str
     attrs: dict[str, str]
