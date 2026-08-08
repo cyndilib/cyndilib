@@ -195,7 +195,8 @@ cdef class MetadataSendFrame(MetadataFrame):
         self.tag = tag
         cdef dict d = {}
         if initdict is not None:
-            assert isinstance(initdict, dict)
+            if not isinstance(initdict, dict):
+                raise TypeError(f'initdict must be a dict, got {type(initdict)}')
             d.update(initdict)
         d.update(kwargs)
         self.attrs.update(d)
