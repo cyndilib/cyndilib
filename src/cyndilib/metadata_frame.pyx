@@ -86,21 +86,33 @@ cdef class MetadataFrame:
             metadata_frame_destroy(p)
 
     def get_tag(self):
+        """Get the xml tag name for this metadata frame
+        """
         return self.tag
 
     def set_tag(self, str tag):
+        """Set the xml tag name for this metadata frame
+        """
         self.tag = tag
 
     def get(self, str tag):
+        """Get the value of the attribute with the given name
+        """
         return self.attrs.get(tag)
 
     def keys(self):
+        """Get the attribute names for this metadata frame
+        """
         return self.attrs.keys()
 
     def values(self):
+        """Get the attribute values for this metadata frame
+        """
         return self.attrs.values()
 
     def items(self):
+        """Get the attribute name-value pairs for this metadata frame
+        """
         return self.attrs.items()
 
     def __getitem__(self, str key):
@@ -112,6 +124,9 @@ cdef class MetadataFrame:
         self.ptr.p_data = data
 
     def get_timecode(self):
+        """Get the current :term:`timecode <ndi-timecode>` converted to float
+        seconds (posix)
+        """
         return self._get_timecode()
     cdef int64_t _get_timecode(self) nogil:
         return self.ptr.timecode
@@ -167,6 +182,8 @@ cdef class MetadataSendFrame(MetadataFrame):
         self._serialize()
 
     def set_tag(self, str tag):
+        """Set the xml tag name for this metadata frame
+        """
         super().set_tag(tag)
         self._serialize()
 
@@ -175,6 +192,8 @@ cdef class MetadataSendFrame(MetadataFrame):
         self._serialize()
 
     def update(self, dict other):
+        """Update the attributes in this metadata frame with the items in `other`
+        """
         self._update(other)
 
     cdef int _update(self, dict other) except -1:
@@ -183,6 +202,8 @@ cdef class MetadataSendFrame(MetadataFrame):
         return 0
 
     def clear(self):
+        """Clear the tag and attributes in this metadata frame
+        """
         self._clear()
 
     cdef int _clear(self) except -1:
