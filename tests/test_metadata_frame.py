@@ -43,9 +43,46 @@ XML_RESULT_2 = XMLResult(
     },
 )
 
+XML_STR_3 = """<axis name="id" type="xs:integer" value="1" />"""
+XML_RESULT_3 = XMLResult(
+    tag="axis",
+    attrs={
+        "name": "id",
+        "type": "xs:integer",
+        "value": "1",
+    },
+)
+
+XML_STR_4 = """\
+<ndi_capabilities
+    web_control="http://ndi.video/"
+    ntk_ptz="true"
+    ntk_exposure_v2="true" />
+"""
+XML_RESULT_4 = XMLResult(
+    tag="ndi_capabilities",
+    attrs={
+        "web_control": "http://ndi.video/",
+        "ntk_ptz": "true",
+        "ntk_exposure_v2": "true",
+    },
+)
+
+XML_STR_5 = """<ndi_capabilities data-type="foo" ndi:state="bar" />"""
+XML_RESULT_5 = XMLResult(
+    tag="ndi_capabilities",
+    attrs={
+        "data-type": "foo",
+        "ndi:state": "bar",
+    },
+)
+
 @pytest.fixture(params=[
     XMLTestCase(XML_STR_1, XML_RESULT_1),
     XMLTestCase(XML_STR_2, XML_RESULT_2),
+    XMLTestCase(XML_STR_3, XML_RESULT_3),
+    XMLTestCase(XML_STR_4, XML_RESULT_4),
+    XMLTestCase(XML_STR_5, XML_RESULT_5),
 ])
 def metadata_frame_data(request) -> XMLTestCase:
     return request.param
@@ -81,7 +118,7 @@ def test_metadata_send_frame_setters(metadata_frame_data: XMLTestCase) -> None:
     attrs = {k: v for k, v in frame.items()}
     assert attrs == metadata_frame_data.expected.attrs
     xml_data = get_metadata_frame_data(frame)
-    assert xml_data == metadata_frame_data.xml_str
+    assert normalize_xml(xml_data) == normalize_xml(metadata_frame_data.xml_str)
 
 
 def test_metadata_send_frame_init(metadata_frame_data: XMLTestCase) -> None:
@@ -97,7 +134,7 @@ def test_metadata_send_frame_init(metadata_frame_data: XMLTestCase) -> None:
     attrs = {k: v for k, v in frame.items()}
     assert attrs == metadata_frame_data.expected.attrs
     xml_data = get_metadata_frame_data(frame)
-    assert xml_data == metadata_frame_data.xml_str
+    assert normalize_xml(xml_data) == normalize_xml(metadata_frame_data.xml_str)
 
 
 def test_metadata_send_frame_init_with_kwargs(metadata_frame_data: XMLTestCase) -> None:
@@ -113,4 +150,4 @@ def test_metadata_send_frame_init_with_kwargs(metadata_frame_data: XMLTestCase) 
     attrs = {k: v for k, v in frame.items()}
     assert attrs == metadata_frame_data.expected.attrs
     xml_data = get_metadata_frame_data(frame)
-    assert xml_data == metadata_frame_data.xml_str
+    assert normalize_xml(xml_data) == normalize_xml(metadata_frame_data.xml_str)
