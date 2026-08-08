@@ -11,8 +11,10 @@ import re
 __all__ = ('MetadataFrame', 'MetadataRecvFrame', 'MetadataSendFrame')
 
 
-cdef object DOC_PATTERN = re.compile(r'<(?P<tag>\w+)(?P<attrs>[\w\s,",=]+)/>')
-cdef object ATTR_PATTERN = re.compile(r'(\s+(?P<name>\w+)="(?P<value>\w+)")')
+cdef object DOC_PATTERN = re.compile(r'<(?P<tag>[A-Za-z_:][\w:.-]*)\s*(?P<attrs>[^>]*?)\s*\/>')
+cdef object ATTR_PATTERN = re.compile(
+    r'(?:^|\s+)(?P<name>[A-Za-z_:][\w:.-]*)="(?P<value>[^"]*)"'
+)
 
 
 def parse_xml(str xml):
@@ -86,13 +88,40 @@ cdef class MetadataFrame:
             metadata_frame_destroy(p)
 
     def get_tag(self):
+        """Get the xml tag name for this metadata frame
+        """
         return self.tag
 
     def set_tag(self, str tag):
+        """Set the xml tag name for this metadata frame
+        """
         self.tag = tag
 
-    def get(self, str tag):
-        return self.attrs.get(tag)
+    def get(self, str key):
+        """Get the value of the attribute with the given name
+        """
+        return self.attrs.get(key)
+
+    def keys(self):
+        """Get the attribute names for this metadata frame
+
+        .. versionadded:: 0.1.2
+        """
+        return self.attrs.keys()
+
+    def values(self):
+        """Get the attribute values for this metadata frame
+
+        .. versionadded:: 0.1.2
+        """
+        return self.attrs.values()
+
+    def items(self):
+        """Get the attribute name-value pairs for this metadata frame
+
+        .. versionadded:: 0.1.2
+        """
+        return self.attrs.items()
 
     def __getitem__(self, str key):
         return self.attrs[key]
@@ -102,8 +131,20 @@ cdef class MetadataFrame:
     cdef void _set_data(self, char* data) nogil:
         self.ptr.p_data = data
 
+    def get_timecode_posix(self):
+        """Get the current :term:`timecode <ndi-timecode>` converted to float
+        seconds (posix)
+
+        .. versionadded:: 0.1.2
+        """
+        cdef double r = ndi_time_to_posix(self.ptr.timecode)
+        return r
+
     def get_timecode(self):
+        """Get the current :term:`timecode <ndi-timecode>` as an integer
+        """
         return self._get_timecode()
+
     cdef int64_t _get_timecode(self) nogil:
         return self.ptr.timecode
     cdef void _set_timecode(self, int64_t value) nogil:
@@ -133,13 +174,18 @@ cdef class MetadataRecvFrame(MetadataFrame):
             if tag is not None:
                 self.tag = tag
                 self.attrs = attrs
-
-        NDIlib_recv_free_metadata(recv_ptr, self.ptr)
+        if recv_ptr is not NULL:
+            NDIlib_recv_free_metadata(recv_ptr, self.ptr)
         return 0
 
 
 cdef class MetadataSendFrame(MetadataFrame):
     """A MetadataFrame used in :class:`.sender.Sender`
+
+    Arguments:
+        tag (str): The xml tag name for this metadata frame
+        initdict (dict, optional): Initial attributes for this metadata frame
+        **kwargs: Additional attributes for this metadata frame
 
     The attributes in this class can be set using dict-like methods::
 
@@ -151,12 +197,16 @@ cdef class MetadataSendFrame(MetadataFrame):
         self.tag = tag
         cdef dict d = {}
         if initdict is not None:
+            if not isinstance(initdict, dict):
+                raise TypeError(f'initdict must be a dict, got {type(initdict)}')
             d.update(initdict)
         d.update(kwargs)
         self.attrs.update(d)
         self._serialize()
 
     def set_tag(self, str tag):
+        """Set the xml tag name for this metadata frame
+        """
         super().set_tag(tag)
         self._serialize()
 
@@ -165,6 +215,8 @@ cdef class MetadataSendFrame(MetadataFrame):
         self._serialize()
 
     def update(self, dict other):
+        """Update the attributes in this metadata frame with the items in `other`
+        """
         self._update(other)
 
     cdef int _update(self, dict other) except -1:
@@ -173,6 +225,8 @@ cdef class MetadataSendFrame(MetadataFrame):
         return 0
 
     def clear(self):
+        """Clear the tag and attributes in this metadata frame
+        """
         self._clear()
 
     cdef int _clear(self) except -1:
@@ -190,10 +244,12 @@ cdef class MetadataSendFrame(MetadataFrame):
                 result_str = ' '.join([f'{key}="{val}"' for key, val in self.attrs.items()])
             result_str = f'<{self.tag} {result_str}/>'
             self.xml_bytes = result_str.encode('UTF-8')
-            self.ptr.p_data = <char*>cpp_string(self.xml_bytes).c_str()
+            self.ptr.p_data = <char*>self.xml_bytes.c_str()
+            self.ptr.length = len(self.xml_bytes) + 1
         else:
             self.xml_bytes = b''
-            self.ptr.p_data = <char*>cpp_string(self.xml_bytes).c_str()
+            self.ptr.p_data = <char*>self.xml_bytes.c_str()
+            self.ptr.length = 0
         return has_tag
 
 
