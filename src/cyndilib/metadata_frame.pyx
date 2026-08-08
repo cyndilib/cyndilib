@@ -129,11 +129,20 @@ cdef class MetadataFrame:
     cdef void _set_data(self, char* data) nogil:
         self.ptr.p_data = data
 
-    def get_timecode(self):
+    def get_timecode_posix(self):
         """Get the current :term:`timecode <ndi-timecode>` converted to float
         seconds (posix)
+
+        .. versionadded:: 0.1.2
+        """
+        cdef double r = ndi_time_to_posix(self.ptr.timecode)
+        return r
+
+    def get_timecode(self):
+        """Get the current :term:`timecode <ndi-timecode>` as an integer
         """
         return self._get_timecode()
+
     cdef int64_t _get_timecode(self) nogil:
         return self.ptr.timecode
     cdef void _set_timecode(self, int64_t value) nogil:
