@@ -94,6 +94,15 @@ cdef class MetadataFrame:
     def get(self, str tag):
         return self.attrs.get(tag)
 
+    def keys(self):
+        return self.attrs.keys()
+
+    def values(self):
+        return self.attrs.values()
+
+    def items(self):
+        return self.attrs.items()
+
     def __getitem__(self, str key):
         return self.attrs[key]
 
