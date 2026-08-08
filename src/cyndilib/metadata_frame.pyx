@@ -102,16 +102,22 @@ cdef class MetadataFrame:
 
     def keys(self):
         """Get the attribute names for this metadata frame
+
+        .. versionadded:: 0.1.2
         """
         return self.attrs.keys()
 
     def values(self):
         """Get the attribute values for this metadata frame
+
+        .. versionadded:: 0.1.2
         """
         return self.attrs.values()
 
     def items(self):
         """Get the attribute name-value pairs for this metadata frame
+
+        .. versionadded:: 0.1.2
         """
         return self.attrs.items()
 
