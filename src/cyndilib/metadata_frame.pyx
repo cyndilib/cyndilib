@@ -200,9 +200,11 @@ cdef class MetadataSendFrame(MetadataFrame):
             result_str = f'<{self.tag} {result_str}/>'
             self.xml_bytes = result_str.encode('UTF-8')
             self.ptr.p_data = <char*>self.xml_bytes.c_str()
+            self.ptr.length = len(self.xml_bytes)
         else:
             self.xml_bytes = b''
             self.ptr.p_data = <char*>self.xml_bytes.c_str()
+            self.ptr.length = len(self.xml_bytes)
         return has_tag
 
 
