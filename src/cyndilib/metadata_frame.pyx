@@ -165,6 +165,11 @@ cdef class MetadataRecvFrame(MetadataFrame):
 cdef class MetadataSendFrame(MetadataFrame):
     """A MetadataFrame used in :class:`.sender.Sender`
 
+    Arguments:
+        tag (str): The xml tag name for this metadata frame
+        initdict (dict, optional): Initial attributes for this metadata frame
+        **kwargs: Additional attributes for this metadata frame
+
     The attributes in this class can be set using dict-like methods::
 
         >>> metadata_frame['program_tally'] = "false"
