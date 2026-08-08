@@ -26,6 +26,6 @@ def set_metadata_frame_data(MetadataRecvFrame frame, str xml_data) -> None:
 def get_metadata_frame_data(MetadataFrame frame) -> str:
     cdef NDIlib_metadata_frame_t* frame_ptr = frame.ptr
     if frame_ptr.p_data is not NULL and frame_ptr.length > 0:
-        return (<bytes>frame_ptr.p_data)[:frame_ptr.length].decode('UTF-8')
+        return (<bytes>frame_ptr.p_data)[:frame_ptr.length - 1].decode('UTF-8')
     else:
         return ''
