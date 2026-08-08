@@ -12,7 +12,9 @@ __all__ = ('MetadataFrame', 'MetadataRecvFrame', 'MetadataSendFrame')
 
 
 cdef object DOC_PATTERN = re.compile(r'<(?P<tag>[A-Za-z_:][\w:.-]*)\s*(?P<attrs>[^>]*?)\s*\/>')
-cdef object ATTR_PATTERN = re.compile(r'(?:^|\s+)(?P<name>\w+)="(?P<value>[^"]*)"')
+cdef object ATTR_PATTERN = re.compile(
+    r'(?:^|\s+)(?P<name>[A-Za-z_:][\w:.-]*)="(?P<value>[^"]*)"'
+)
 
 
 def parse_xml(str xml):
