@@ -107,6 +107,20 @@ def test_parse_xml(metadata_frame_data: XMLTestCase) -> None:
     assert attrs == metadata_frame_data.expected.attrs
 
 
+def test_metadata_frame_benchmark(benchmark, metadata_frame_data: XMLTestCase) -> None:
+    """Benchmark MetadataRecvFrame parsing XML data from its frame pointer
+    """
+    def run_benchmark():
+        frame = MetadataRecvFrame()
+        set_metadata_frame_data(frame, metadata_frame_data.xml_str)
+        tag = frame.get_tag()
+        attrs = {k: v for k, v in frame.items()}
+        assert tag == metadata_frame_data.expected.tag
+        assert attrs == metadata_frame_data.expected.attrs
+
+    benchmark(run_benchmark)
+
+
 def test_metadata_frame_parse(metadata_frame_data: XMLTestCase) -> None:
     """Test the MetadataRecvFrame's ability to parse XML data from its frame pointer
     """
