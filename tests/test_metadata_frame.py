@@ -6,7 +6,6 @@ import pytest
 from _metadata_frame_helpers import get_metadata_frame_data, set_metadata_frame_data
 
 from cyndilib import MetadataRecvFrame, MetadataSendFrame
-from cyndilib.metadata_frame import parse_xml
 
 
 def normalize_xml(xml: str) -> str:
@@ -99,12 +98,6 @@ XML_RESULT_5 = XMLResult(
 def metadata_frame_data(request) -> XMLTestCase:
     return request.param
 
-def test_parse_xml(metadata_frame_data: XMLTestCase) -> None:
-    """Test the parse_xml function with various XML strings
-    """
-    tag, attrs = parse_xml(metadata_frame_data.xml_str)
-    assert tag == metadata_frame_data.expected.tag
-    assert attrs == metadata_frame_data.expected.attrs
 
 
 def test_metadata_frame_benchmark(benchmark, metadata_frame_data: XMLTestCase) -> None:

@@ -5,9 +5,12 @@ from libc.stdint cimport *
 from libcpp.string cimport string as cpp_string
 
 from .wrapper cimport *
+from pugixml_cython cimport Document, Element
 
 cdef class MetadataFrame:
     cdef NDIlib_metadata_frame_t* ptr
+    cdef Document xml_doc
+    cdef readonly Element root_element
     cdef cpp_string xml_bytes
     cdef readonly str tag
     cdef readonly dict attrs
