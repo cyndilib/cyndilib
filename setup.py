@@ -106,6 +106,12 @@ except ImportError:
 if numpy is not None:
     INCLUDE_PATH.append(numpy.get_include())
 
+try:
+    import pugixml_cython
+    INCLUDE_PATH.extend(str(p) for p in pugixml_cython.get_include_dirs())
+except ImportError:
+    pass
+
 class CyBuildError(CCompilerError):
     def __init__(self, msg):
         self.msg = msg
