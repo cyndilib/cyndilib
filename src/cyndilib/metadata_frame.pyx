@@ -146,14 +146,17 @@ cdef class MetadataRecvFrame(MetadataFrame):
         self.root_element = None
         return 0
     cdef int _process_incoming(self, NDIlib_recv_instance_t recv_ptr) except -1:
-        self.xml_bytes = self.ptr.p_data
-        cdef const char* xml_string = self.ptr.p_data
-        self.xml_doc._load_string(xml_string)
-        self.root_element = self.xml_doc._get_root()
-        self.tag = self.root_element.node_struct.name.decode('UTF-8')
-        self.attrs = _attribute_map_to_dict(self.root_element.node_struct.attribute_map)
-        if recv_ptr is not NULL:
-            NDIlib_recv_free_metadata(recv_ptr, self.ptr)
+        cdef const char* xml_string
+        try:
+            self.xml_bytes = self.ptr.p_data
+            xml_string = self.ptr.p_data
+            self.xml_doc._load_string(xml_string)
+            self.root_element = self.xml_doc._get_root()
+            self.tag = self.root_element.node_struct.name.decode('UTF-8')
+            self.attrs = _attribute_map_to_dict(self.root_element.node_struct.attribute_map)
+        finally:
+            if recv_ptr is not NULL:
+                NDIlib_recv_free_metadata(recv_ptr, self.ptr)
         return 0
 
 
