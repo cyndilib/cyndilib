@@ -2,10 +2,12 @@
 
 from collections.abc import Iterable
 
-from pugixml_cython import Element
+from pugixml_cython import Document, Element
 
 class MetadataFrame:
     def __init__(self, *args, **kwargs) -> None: ...
+    @property
+    def xml_doc(self) -> Document: ...
     @property
     def root_element(self) -> Element | None: ...
     def get_tag(self) -> str | None: ...

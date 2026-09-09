@@ -29,7 +29,7 @@ class XMLResult(NamedTuple):
     text: str | None = None
     xpath_query: str | None = None
 
-    def check(self, element: Element) -> None:
+    def check(self, element: Element, recurse: bool = True) -> None:
         """Check if the given element matches the expected XML result
         """
         assert element.name == self.tag
@@ -40,11 +40,12 @@ class XMLResult(NamedTuple):
             assert element.text.strip() == self.text
         else:
             assert not element.has_text
-
+        if not recurse:
+            return
         if self.children is not None:
             assert len(element) == len(self.children)
             for child_element, child_result in zip(element, self.children):
-                child_result.check(child_element)
+                child_result.check(child_element, recurse=recurse)
         else:
             assert not len(element)
 
@@ -344,6 +345,25 @@ def test_metadata_frame_parse_extended(metadata_frame_data_with_children: XMLTes
     assert attrs == metadata_frame_data.expected.attrs
     assert frame.root_element is not None
     metadata_frame_data.expected.check(frame.root_element)
+
+
+def test_metadata_frame_parse_extended_xpath(metadata_frame_data_with_children: XMLTestCase) -> None:
+    """Test extended metadata frame parsing with child elements and text content using XPath queries
+    """
+    metadata_frame_data = metadata_frame_data_with_children
+    frame = MetadataRecvFrame()
+    set_metadata_frame_data(frame, metadata_frame_data.xml_str)
+
+    doc = frame.xml_doc
+    root = frame.root_element
+    assert root is not None
+
+    for expected in metadata_frame_data.expected.walk():
+        if expected.xpath_query is None:
+            continue
+        found_elements = doc.xpath_findall(expected.xpath_query)
+        assert len(found_elements) == 1
+        expected.check(found_elements[0], recurse=False)
 
 
 def test_metadata_send_frame_setters(metadata_frame_data: XMLTestCase) -> None:
