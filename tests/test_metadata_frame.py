@@ -139,7 +139,7 @@ XML_STR_6 = """
         <axis name="posy" type="xs:integer" value="9356" />
         <axis name="posz" type="xs:integer" value="44" />
         <axis name="rotx" type="xs:integer" value="23" />
-        <axis name="roty" type="xs:integer" value="34" />```
+        <axis name="roty" type="xs:integer" value="34" />
         <axis name="rotz" type="xs:integer" value="43" />
         <axis name="zoom" type="xs:integer" value="12" />
         <axis name="focus" type="xs:integer" value="6785" />
