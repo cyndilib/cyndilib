@@ -27,7 +27,6 @@ def parse_xml(str xml):
     # cdef str key, value
 
     for m in ATTR_PATTERN.finditer(attr_str):
-        print(f'm: {m!r}')
         d = m.groupdict()
         key = d['name']
         if key is None:
