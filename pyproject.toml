@@ -4,8 +4,7 @@ requires = [
     "wheel",
     "numpy",
     "pugixml-cython>=0.1.1",
-    "cython<=3.1.5; sys_platform == 'darwin' and platform_machine == 'x86_64'",
-    "cython>=3.2.2; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+    "cython>=3.3.0",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -82,8 +81,7 @@ test = [
     "psutil",
     "numpy",
     "setuptools",
-    "cython<=3.1.5; sys_platform == 'darwin' and platform_machine == 'x86_64'",
-    "cython>=3.2.2; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+    "cython>=3.3.0",
     "pytest-codspeed>=4.0.0",
 ]
 doc = [

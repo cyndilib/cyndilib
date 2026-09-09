@@ -399,8 +399,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "click" },
-    { name = "cython", version = "3.1.5", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'" },
-    { name = "cython", version = "3.3.0", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "cython" },
     { name = "flaky" },
     { name = "furo", version = "2023.3.27", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.13'" },
     { name = "furo", version = "2025.12.19", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13'" },
@@ -422,8 +421,7 @@ dev = [
     { name = "sphinx", version = "9.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13'" },
     { name = "sphinx-codeautolink" },
     { name = "standard-imghdr", marker = "python_full_version >= '3.13'" },
-    { name = "stubgen-pyx", version = "0.2.21", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
-    { name = "stubgen-pyx", version = "0.2.22", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'" },
+    { name = "stubgen-pyx" },
 ]
 doc = [
     { name = "furo", version = "2023.3.27", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.13'" },
@@ -438,8 +436,7 @@ examples = [
     { name = "sounddevice" },
 ]
 test = [
-    { name = "cython", version = "3.1.5", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'" },
-    { name = "cython", version = "3.3.0", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "cython" },
     { name = "flaky" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.11.*'" },
@@ -462,8 +459,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "click" },
-    { name = "cython", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'", specifier = ">=3.2.2" },
-    { name = "cython", marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'", specifier = "<=3.1.5" },
+    { name = "cython", specifier = ">=3.3.0" },
     { name = "flaky" },
     { name = "furo" },
     { name = "ipython" },
@@ -495,8 +491,7 @@ examples = [
     { name = "sounddevice", specifier = ">=0.5.5" },
 ]
 test = [
-    { name = "cython", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'", specifier = ">=3.2.2" },
-    { name = "cython", marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'", specifier = "<=3.1.5" },
+    { name = "cython", specifier = ">=3.3.0" },
     { name = "flaky" },
     { name = "numpy" },
     { name = "psutil" },
@@ -509,34 +504,8 @@ test = [
 
 [[package]]
 name = "cython"
-version = "3.1.5"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.13' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version == '3.12.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version == '3.11.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version < '3.11' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-]
-sdist = { url = "https://files.pythonhosted.org/packages/4d/ab/4e980fbfbc894f95854aabff68a029dd6044a9550c480a1049a65263c72b/cython-3.1.5.tar.gz", hash = "sha256:7e73c7e6da755a8dffb9e0e5c4398e364e37671778624188444f1ff0d9458112", size = 3192050, upload-time = "2025-10-20T06:06:51.928Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b5/9f/677707b1734285632a71a3b644b36e77801ce36a7a34af2e64f516b451f0/cython-3.1.5-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:d27f08ea53099f0101a0c582f1000fcae51cae177bbd4f6f95adfd8adb7a5271", size = 2993670, upload-time = "2025-10-20T06:08:47.301Z" },
-    { url = "https://files.pythonhosted.org/packages/4b/f3/fcd5a3c43db19884dfafe7794b463728c70147aa1876223f431916d44984/cython-3.1.5-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:1aad56376c6ff10deee50f3a9ff5a1fddbe24c6debad7041b86cc618f127836a", size = 3026477, upload-time = "2025-10-20T06:09:07.712Z" },
-    { url = "https://files.pythonhosted.org/packages/54/3c/beb8bd4b94ae08cc9b90aac152e917e2fcab1d3189fb5143bc5f1622dc59/cython-3.1.5-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:38bf7bbe29e8508645d2c3d6313f7fb6872c22f54980f68819422d0812c95f69", size = 3063044, upload-time = "2025-10-20T06:09:32.361Z" },
-    { url = "https://files.pythonhosted.org/packages/89/7e/9b4e099076e6a56939ef7def0ebf7f31f204fc2383be57f31fd0d8c91659/cython-3.1.5-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:3c9b6d424f8b4f621b2d08ee5c344970311df0dac5c259667786b21b77657460", size = 3051579, upload-time = "2025-10-20T06:09:54.733Z" },
-    { url = "https://files.pythonhosted.org/packages/7c/52/a44f5b3e7988ef3a55ea297cd5b56204ff5d0caaf7df048bcb78efe595ab/cython-3.1.5-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:888bf3f12aadfb2dc2c41e83932f40fc2ac519933c809aae16e901c4413d6966", size = 3046849, upload-time = "2025-10-20T06:10:14.087Z" },
-    { url = "https://files.pythonhosted.org/packages/1b/33/8af1a1d424176a5f8710b687b84dd2f403e41b87b0e0acf569d39723f257/cython-3.1.5-py3-none-any.whl", hash = "sha256:1bef4a168f4f650d17d67b43792ed045829b570f1e4108c6c37a56fe268aa728", size = 1227619, upload-time = "2025-10-20T06:06:48.387Z" },
-]
-
-[[package]]
-name = "cython"
 version = "3.3.0"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "(python_full_version >= '3.13' and platform_machine != 'x86_64') or (python_full_version >= '3.13' and sys_platform != 'darwin')",
-    "(python_full_version == '3.12.*' and platform_machine != 'x86_64') or (python_full_version == '3.12.*' and sys_platform != 'darwin')",
-    "(python_full_version == '3.11.*' and platform_machine != 'x86_64') or (python_full_version == '3.11.*' and sys_platform != 'darwin')",
-    "(python_full_version < '3.11' and platform_machine != 'x86_64') or (python_full_version < '3.11' and sys_platform != 'darwin')",
-]
 sdist = { url = "https://files.pythonhosted.org/packages/a9/d8/4981ef716ad0e3ff0d3ef383aefc6b03c4a88dee33b272bf8e0d833001ca/cython-3.3.0.tar.gz", hash = "sha256:eed0d93fbca7087f143b42c34b05a825849bdf17f101572c2105acfa49aa88b8", size = 3727515, upload-time = "2026-08-22T05:16:39.493Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f3/62/eae58684ab7a46e877f3193f393244a4de6fd5e700cca4265a7d33664f38/cython-3.3.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:0507d9caf7dc35f1212627145d5d13dbc5dd7128529a6608ab72690472fa688e", size = 3142413, upload-time = "2026-08-22T05:16:50.378Z" },
@@ -1757,38 +1726,13 @@ wheels = [
 name = "stubgen-pyx"
 version = "0.2.21"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "(python_full_version >= '3.13' and platform_machine != 'x86_64') or (python_full_version >= '3.13' and sys_platform != 'darwin')",
-    "(python_full_version == '3.12.*' and platform_machine != 'x86_64') or (python_full_version == '3.12.*' and sys_platform != 'darwin')",
-    "(python_full_version == '3.11.*' and platform_machine != 'x86_64') or (python_full_version == '3.11.*' and sys_platform != 'darwin')",
-    "(python_full_version < '3.11' and platform_machine != 'x86_64') or (python_full_version < '3.11' and sys_platform != 'darwin')",
-]
 dependencies = [
-    { name = "cython", version = "3.3.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "cython" },
     { name = "isort" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/04/f6/313dac698336faaba88399513ff8f461a5bbf320344828b06b3a14863a2f/stubgen_pyx-0.2.21.tar.gz", hash = "sha256:4b2a5508400f53baf20625cf16bc3f57d5772d63e08704e4d5328bf5b0c0373b", size = 96254, upload-time = "2026-08-28T02:41:00.803Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/43/6c/352f115f7773f6d1774a899acc013001f524cb7ca4dc5d4c8a3a30bffd24/stubgen_pyx-0.2.21-py3-none-any.whl", hash = "sha256:b45127c8be09b736b05adc287f200b962fce21c4affb48a6a09b7badbe4b4ff7", size = 68310, upload-time = "2026-08-28T02:40:59.833Z" },
-]
-
-[[package]]
-name = "stubgen-pyx"
-version = "0.2.22"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.13' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version == '3.12.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version == '3.11.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version < '3.11' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-]
-dependencies = [
-    { name = "cython", version = "3.1.5", source = { registry = "https://pypi.org/simple" } },
-    { name = "isort" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/9a/bb/7e7c4ca2df8047dd10316773af8c54b1cb871637230b33183eb8b5a8de0e/stubgen_pyx-0.2.22.tar.gz", hash = "sha256:9f8c7d75eb9480e4b98bed7027895c33c998c21e2b78d549212bd4c52bf0b20f", size = 96248, upload-time = "2026-08-28T03:13:26.774Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/06/11/8f91160be35a114edab908e24417e1983d73e6839e0e797458dc7df6b020/stubgen_pyx-0.2.22-py3-none-any.whl", hash = "sha256:740a0d17d0bb6fa6997eb3dfc93d1f57b82bc37c5c270e22fd2fbf99bf30841a", size = 68316, upload-time = "2026-08-28T03:13:25.67Z" },
 ]
 
 [[package]]
