@@ -3,7 +3,7 @@ requires = [
     "setuptools",
     "wheel",
     "numpy",
-    "pugixml-cython>=0.1.0",
+    "pugixml-cython>=0.1.1",
     "cython<=3.1.5; sys_platform == 'darwin' and platform_machine == 'x86_64'",
     "cython>=3.2.2; sys_platform != 'darwin' or platform_machine != 'x86_64'",
 ]
@@ -26,7 +26,7 @@ requires-python = ">=3.10"
 dependencies = [
     "numpy",
     "importlib_resources;python_version<'3.9'",
-    "pugixml-cython>=0.1.0",
+    "pugixml-cython>=0.1.1",
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
