@@ -14,6 +14,8 @@ from Cython.Build import cythonize, Cythonize
 from Cython.Build.Dependencies import extended_iglob
 from Cython.Compiler import Options
 
+import pugixml_cython
+
 import cyndilib
 
 WIN32 = sys.platform == 'win32'
@@ -129,7 +131,8 @@ def get_ndi_metadata() -> NDIDistutilsMetadata:
         raise RuntimeError('cyndilib must be compiled first')
     metadata = get_cython_metadata(src_file)
     dist_meta = metadata['distutils']
-    include_dirs = [cyndilib.get_include(), numpy.get_include()]
+    pugi_includes = [str(p) for p in pugixml_cython.get_include_dirs()]
+    include_dirs = [cyndilib.get_include(), numpy.get_include(), *pugi_includes]
     meta_inc = dist_meta.get('include_dirs', [])
     if meta_inc is not None:
         include_dirs.extend(meta_inc)

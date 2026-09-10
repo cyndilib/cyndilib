@@ -5,10 +5,10 @@ resolution-markers = [
     "python_full_version >= '3.13' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version >= '3.13' and platform_machine != 'x86_64') or (python_full_version >= '3.13' and sys_platform != 'darwin')",
     "python_full_version == '3.12.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version == '3.11.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version < '3.11' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version == '3.12.*' and platform_machine != 'x86_64') or (python_full_version == '3.12.*' and sys_platform != 'darwin')",
+    "python_full_version == '3.11.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version == '3.11.*' and platform_machine != 'x86_64') or (python_full_version == '3.11.*' and sys_platform != 'darwin')",
+    "python_full_version < '3.11' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version < '3.11' and platform_machine != 'x86_64') or (python_full_version < '3.11' and sys_platform != 'darwin')",
 ]
 
@@ -30,10 +30,10 @@ version = "0.7.16"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version == '3.12.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version == '3.11.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version < '3.11' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version == '3.12.*' and platform_machine != 'x86_64') or (python_full_version == '3.12.*' and sys_platform != 'darwin')",
+    "python_full_version == '3.11.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version == '3.11.*' and platform_machine != 'x86_64') or (python_full_version == '3.11.*' and sys_platform != 'darwin')",
+    "python_full_version < '3.11' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version < '3.11' and platform_machine != 'x86_64') or (python_full_version < '3.11' and sys_platform != 'darwin')",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c9/3e/13dd8e5ed9094e734ac430b5d0eb4f2bb001708a8b7856cbf8e084e001ba/alabaster-0.7.16.tar.gz", hash = "sha256:75a8b99c28a5dad50dd7f8ccdd447a121ddb3892da9e53d1ca5cca3106d58d65", size = 23776, upload-time = "2024-01-10T00:56:10.189Z" }
@@ -393,13 +393,13 @@ dependencies = [
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.11.*'" },
     { name = "numpy", version = "2.5.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "pugixml-cython" },
 ]
 
 [package.dev-dependencies]
 dev = [
     { name = "click" },
-    { name = "cython", version = "3.1.5", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'" },
-    { name = "cython", version = "3.3.0", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "cython" },
     { name = "flaky" },
     { name = "furo", version = "2023.3.27", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.13'" },
     { name = "furo", version = "2025.12.19", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13'" },
@@ -421,8 +421,7 @@ dev = [
     { name = "sphinx", version = "9.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13'" },
     { name = "sphinx-codeautolink" },
     { name = "standard-imghdr", marker = "python_full_version >= '3.13'" },
-    { name = "stubgen-pyx", version = "0.2.21", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
-    { name = "stubgen-pyx", version = "0.2.22", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'" },
+    { name = "stubgen-pyx" },
 ]
 doc = [
     { name = "furo", version = "2023.3.27", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.13'" },
@@ -437,8 +436,7 @@ examples = [
     { name = "sounddevice" },
 ]
 test = [
-    { name = "cython", version = "3.1.5", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'" },
-    { name = "cython", version = "3.3.0", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "cython" },
     { name = "flaky" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.11.*'" },
@@ -455,13 +453,13 @@ test = [
 requires-dist = [
     { name = "importlib-resources", marker = "python_full_version < '3.9'" },
     { name = "numpy" },
+    { name = "pugixml-cython", specifier = ">=0.1.1" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "click" },
-    { name = "cython", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'", specifier = ">=3.2.2" },
-    { name = "cython", marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'", specifier = "<=3.1.5" },
+    { name = "cython", specifier = ">=3.3.0" },
     { name = "flaky" },
     { name = "furo" },
     { name = "ipython" },
@@ -493,8 +491,7 @@ examples = [
     { name = "sounddevice", specifier = ">=0.5.5" },
 ]
 test = [
-    { name = "cython", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'", specifier = ">=3.2.2" },
-    { name = "cython", marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'", specifier = "<=3.1.5" },
+    { name = "cython", specifier = ">=3.3.0" },
     { name = "flaky" },
     { name = "numpy" },
     { name = "psutil" },
@@ -507,34 +504,8 @@ test = [
 
 [[package]]
 name = "cython"
-version = "3.1.5"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.13' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version == '3.12.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version == '3.11.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version < '3.11' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-]
-sdist = { url = "https://files.pythonhosted.org/packages/4d/ab/4e980fbfbc894f95854aabff68a029dd6044a9550c480a1049a65263c72b/cython-3.1.5.tar.gz", hash = "sha256:7e73c7e6da755a8dffb9e0e5c4398e364e37671778624188444f1ff0d9458112", size = 3192050, upload-time = "2025-10-20T06:06:51.928Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b5/9f/677707b1734285632a71a3b644b36e77801ce36a7a34af2e64f516b451f0/cython-3.1.5-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:d27f08ea53099f0101a0c582f1000fcae51cae177bbd4f6f95adfd8adb7a5271", size = 2993670, upload-time = "2025-10-20T06:08:47.301Z" },
-    { url = "https://files.pythonhosted.org/packages/4b/f3/fcd5a3c43db19884dfafe7794b463728c70147aa1876223f431916d44984/cython-3.1.5-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:1aad56376c6ff10deee50f3a9ff5a1fddbe24c6debad7041b86cc618f127836a", size = 3026477, upload-time = "2025-10-20T06:09:07.712Z" },
-    { url = "https://files.pythonhosted.org/packages/54/3c/beb8bd4b94ae08cc9b90aac152e917e2fcab1d3189fb5143bc5f1622dc59/cython-3.1.5-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:38bf7bbe29e8508645d2c3d6313f7fb6872c22f54980f68819422d0812c95f69", size = 3063044, upload-time = "2025-10-20T06:09:32.361Z" },
-    { url = "https://files.pythonhosted.org/packages/89/7e/9b4e099076e6a56939ef7def0ebf7f31f204fc2383be57f31fd0d8c91659/cython-3.1.5-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:3c9b6d424f8b4f621b2d08ee5c344970311df0dac5c259667786b21b77657460", size = 3051579, upload-time = "2025-10-20T06:09:54.733Z" },
-    { url = "https://files.pythonhosted.org/packages/7c/52/a44f5b3e7988ef3a55ea297cd5b56204ff5d0caaf7df048bcb78efe595ab/cython-3.1.5-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:888bf3f12aadfb2dc2c41e83932f40fc2ac519933c809aae16e901c4413d6966", size = 3046849, upload-time = "2025-10-20T06:10:14.087Z" },
-    { url = "https://files.pythonhosted.org/packages/1b/33/8af1a1d424176a5f8710b687b84dd2f403e41b87b0e0acf569d39723f257/cython-3.1.5-py3-none-any.whl", hash = "sha256:1bef4a168f4f650d17d67b43792ed045829b570f1e4108c6c37a56fe268aa728", size = 1227619, upload-time = "2025-10-20T06:06:48.387Z" },
-]
-
-[[package]]
-name = "cython"
 version = "3.3.0"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "(python_full_version >= '3.13' and platform_machine != 'x86_64') or (python_full_version >= '3.13' and sys_platform != 'darwin')",
-    "(python_full_version == '3.12.*' and platform_machine != 'x86_64') or (python_full_version == '3.12.*' and sys_platform != 'darwin')",
-    "(python_full_version == '3.11.*' and platform_machine != 'x86_64') or (python_full_version == '3.11.*' and sys_platform != 'darwin')",
-    "(python_full_version < '3.11' and platform_machine != 'x86_64') or (python_full_version < '3.11' and sys_platform != 'darwin')",
-]
 sdist = { url = "https://files.pythonhosted.org/packages/a9/d8/4981ef716ad0e3ff0d3ef383aefc6b03c4a88dee33b272bf8e0d833001ca/cython-3.3.0.tar.gz", hash = "sha256:eed0d93fbca7087f143b42c34b05a825849bdf17f101572c2105acfa49aa88b8", size = 3727515, upload-time = "2026-08-22T05:16:39.493Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f3/62/eae58684ab7a46e877f3193f393244a4de6fd5e700cca4265a7d33664f38/cython-3.3.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:0507d9caf7dc35f1212627145d5d13dbc5dd7128529a6608ab72690472fa688e", size = 3142413, upload-time = "2026-08-22T05:16:50.378Z" },
@@ -588,10 +559,10 @@ version = "0.19"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version == '3.12.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version == '3.11.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version < '3.11' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version == '3.12.*' and platform_machine != 'x86_64') or (python_full_version == '3.12.*' and sys_platform != 'darwin')",
+    "python_full_version == '3.11.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version == '3.11.*' and platform_machine != 'x86_64') or (python_full_version == '3.11.*' and sys_platform != 'darwin')",
+    "python_full_version < '3.11' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version < '3.11' and platform_machine != 'x86_64') or (python_full_version < '3.11' and sys_platform != 'darwin')",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/6b/5c/330ea8d383eb2ce973df34d1239b3b21e91cd8c865d21ff82902d952f91f/docutils-0.19.tar.gz", hash = "sha256:33995a6753c30b7f577febfc2c50411fec6aac7f7ffeb7c4cfe5991072dcf9e6", size = 2056383, upload-time = "2022-07-05T20:17:31.045Z" }
@@ -657,10 +628,10 @@ version = "2023.3.27"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version == '3.12.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version == '3.11.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version < '3.11' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version == '3.12.*' and platform_machine != 'x86_64') or (python_full_version == '3.12.*' and sys_platform != 'darwin')",
+    "python_full_version == '3.11.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version == '3.11.*' and platform_machine != 'x86_64') or (python_full_version == '3.11.*' and sys_platform != 'darwin')",
+    "python_full_version < '3.11' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version < '3.11' and platform_machine != 'x86_64') or (python_full_version < '3.11' and sys_platform != 'darwin')",
 ]
 dependencies = [
@@ -764,8 +735,8 @@ resolution-markers = [
     "python_full_version >= '3.13' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version >= '3.13' and platform_machine != 'x86_64') or (python_full_version >= '3.13' and sys_platform != 'darwin')",
     "python_full_version == '3.12.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version == '3.11.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version == '3.12.*' and platform_machine != 'x86_64') or (python_full_version == '3.12.*' and sys_platform != 'darwin')",
+    "python_full_version == '3.11.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version == '3.11.*' and platform_machine != 'x86_64') or (python_full_version == '3.11.*' and sys_platform != 'darwin')",
 ]
 dependencies = [
@@ -1313,6 +1284,51 @@ wheels = [
 ]
 
 [[package]]
+name = "pugixml-cython"
+version = "0.1.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a3/4e/56c99f285ed327a58b06674fe0d820d9959ea644c37bbf156f2e795382d0/pugixml_cython-0.1.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:80ed7cd267bcf0e6045ba525e36666cf3ea86c1aac719206e938ac094f60e46c", size = 402462, upload-time = "2026-09-09T01:11:29.834Z" },
+    { url = "https://files.pythonhosted.org/packages/57/0a/f5efdff1e42ddd49b480ff502d761760c9f04bc371d782adc04155f3a9eb/pugixml_cython-0.1.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:491b9a98c1f1a337bf8ad846ccf33c4b01b5274d10438217bf72efd4fe0aebc5", size = 398764, upload-time = "2026-09-09T01:11:31.549Z" },
+    { url = "https://files.pythonhosted.org/packages/cf/2d/7d0ca76c8002f1c96cdda60c6f68eca36fe20364e64d212f5899d1599732/pugixml_cython-0.1.1-cp310-cp310-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:a2090e72f09db4c0b2a4ce0b1f1e80ea13b9040ede48721eb65d949c8aed131a", size = 1278692, upload-time = "2026-09-09T01:11:33.214Z" },
+    { url = "https://files.pythonhosted.org/packages/26/e1/a6a7880f57a4fe99e292751b1f92e504a86d99486a5d31634394526a5f8c/pugixml_cython-0.1.1-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:79fdc6316e2459908920f2e3943dc760e61ded6725e75843032c50119435ebff", size = 1297988, upload-time = "2026-09-09T01:11:35.003Z" },
+    { url = "https://files.pythonhosted.org/packages/bb/44/603e07d4550b2425404a47f526e87495338c233762774898e3700d498a62/pugixml_cython-0.1.1-cp310-cp310-musllinux_1_2_aarch64.whl", hash = "sha256:bc426257ae0c7f1c537534a048f48fc07d8dd67a94412feeabbd05cd113a7b84", size = 2239616, upload-time = "2026-09-09T01:11:36.847Z" },
+    { url = "https://files.pythonhosted.org/packages/1e/06/70410fd7dae3380ff86947d3bd8d5a59621a88eb5beaff75c988e2a4fbeb/pugixml_cython-0.1.1-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:ffa10df6c311074eaa9a425ff46489086c8a6f7924038a2c7fd3781990965892", size = 2323146, upload-time = "2026-09-09T01:11:38.55Z" },
+    { url = "https://files.pythonhosted.org/packages/ef/75/fd4f280fd448cb364ca0a934c9dcd56e8f0e4d1b511780cdea16a4580a74/pugixml_cython-0.1.1-cp310-cp310-win_amd64.whl", hash = "sha256:a7fe0fc79a17034beb2c233781c2fdcebb43f4d88f2efa5a2a1c3383195c7876", size = 534477, upload-time = "2026-09-09T01:11:40.239Z" },
+    { url = "https://files.pythonhosted.org/packages/e3/ad/781c4a1cecee2b12d312ec1d8a09b94618e2bd2f747e66f824a372ad544d/pugixml_cython-0.1.1-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:7618d97858c9baa455c573e2adb4f1b1dceb8d22b8d5de19e815eedbf539868c", size = 402266, upload-time = "2026-09-09T01:11:42.013Z" },
+    { url = "https://files.pythonhosted.org/packages/6b/fd/6a5e4aac74ba968b83a00bf2e3aaaa1378e9e74b4f3fccafdbf2a520e243/pugixml_cython-0.1.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:9891c79126589b992660a391a064423041eb5b34e43999b73a4bf927c9811c24", size = 398502, upload-time = "2026-09-09T01:11:43.653Z" },
+    { url = "https://files.pythonhosted.org/packages/59/9c/53074fa1788265b29cae0d0b2a29c321c7e24885531c36fd23287b29f2e6/pugixml_cython-0.1.1-cp311-cp311-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:054c6639b2f65440c2c92e233fc3b1fb1a066242463ebd597768ba7186c13aa8", size = 1294128, upload-time = "2026-09-09T01:11:45.403Z" },
+    { url = "https://files.pythonhosted.org/packages/d0/0a/cd5665df6b827b4742bcf90ad6544bd8be2e34552ae5d7fb2fb5935b3c30/pugixml_cython-0.1.1-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:48566002b76e6ea288e789c106160e2e62e1f02c155a718e8e77b8d09045cb5b", size = 1313106, upload-time = "2026-09-09T01:11:47.26Z" },
+    { url = "https://files.pythonhosted.org/packages/23/ce/e3c9a6f3065ccd20bc4e7816bbf23468b5169ab1599e699fe63c3414ff5f/pugixml_cython-0.1.1-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:3d90021661685e657720197fa5f009807f998d253a7f01a244b1899041dabfb9", size = 2252688, upload-time = "2026-09-09T01:11:48.772Z" },
+    { url = "https://files.pythonhosted.org/packages/35/74/07068391fe9401a0515627202a13157239cd74f9e05cd67310bd56a28970/pugixml_cython-0.1.1-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:419afc9da0921d7c910bd287d42fbf529be92799285d26b8d0cb75f72fbf54db", size = 2336381, upload-time = "2026-09-09T01:11:50.375Z" },
+    { url = "https://files.pythonhosted.org/packages/dc/a0/531c5ebd9590b17da90f6cd9c007b36cfc59abd681e0850ce3d25fc5d894/pugixml_cython-0.1.1-cp311-cp311-win_amd64.whl", hash = "sha256:13d2f29f046406c216cd69bc6ec79753f3b69c4c6ef4cdc97615e85338db88f5", size = 534074, upload-time = "2026-09-09T01:11:51.889Z" },
+    { url = "https://files.pythonhosted.org/packages/0a/53/80aec89aa78aef62682b350b8dded87b6195ce99e4b99a7a2c03b200dc24/pugixml_cython-0.1.1-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:fcc087a19ac7957384bcbe79760282e7339522f9aedd97573688f76cd9493a7e", size = 403022, upload-time = "2026-09-09T01:11:53.172Z" },
+    { url = "https://files.pythonhosted.org/packages/c0/f9/0b093af71632b0771e6438aa1c1ca2ee79a9f2fc8383cb07fbff57b2d249/pugixml_cython-0.1.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:42d2dc9a42ce9984a25d7561785bf352cb43ad4f360989d0e88a829cac094180", size = 399607, upload-time = "2026-09-09T01:11:54.686Z" },
+    { url = "https://files.pythonhosted.org/packages/ae/9b/cb310e61c6bc0cc80bce8fae01cd69176d286bad568e0cc2d1457450e793/pugixml_cython-0.1.1-cp312-cp312-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:7c1c12f1fe564a0ce02895a3835263d3e71641b7928d89325f26f10148428ebf", size = 1296162, upload-time = "2026-09-09T01:11:56.435Z" },
+    { url = "https://files.pythonhosted.org/packages/ac/2b/faa504c81e0bb3ede78d5688f03302d443880f0c5d898d6a8c91f9c494e4/pugixml_cython-0.1.1-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:6d2f00058b5772ad988b2130695a6c280347adf5aa6346bb74e4b464c2516b35", size = 1318294, upload-time = "2026-09-09T01:11:57.965Z" },
+    { url = "https://files.pythonhosted.org/packages/0d/cc/7977d3214afcf8ebb7efc90e9b4cec8a107d828e704fa940a5746e90702b/pugixml_cython-0.1.1-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:46990e574cf9df3baa945bed73f0a10b53896285bbadd74aace91eda3565050d", size = 2254431, upload-time = "2026-09-09T01:11:59.625Z" },
+    { url = "https://files.pythonhosted.org/packages/8a/97/99442cd74afe4943645dc958d53e94ee242cc8027ec490b4d165327deac9/pugixml_cython-0.1.1-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:98c8988d8fb7030e7e32e64af12a99bf9e076ee466dc1fe298e45cba9b4700be", size = 2338778, upload-time = "2026-09-09T01:12:01.291Z" },
+    { url = "https://files.pythonhosted.org/packages/9f/6a/8e392c342dd0fa6c732548d655afe312e02be0dcfde7d3eaeb10d7f1c9ff/pugixml_cython-0.1.1-cp312-cp312-win_amd64.whl", hash = "sha256:1ede3bea257669bb6cd13ce6b36cc1bf088a04b024a68f34ccc44ea156a00fe8", size = 535288, upload-time = "2026-09-09T01:12:02.743Z" },
+    { url = "https://files.pythonhosted.org/packages/53/27/7de509e515f2dc334c958c82ba4cfc80fd269f8dd37a7c360ba4ea66712f/pugixml_cython-0.1.1-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:c033c731780df6635efcd38164a0fe5f25ab9521b4bf2749763aae664ef373a7", size = 402643, upload-time = "2026-09-09T01:12:04.465Z" },
+    { url = "https://files.pythonhosted.org/packages/3b/2c/819ce1864a61c491432ee68b2e1f82c67e9b2efb3f6b72cc8693dac141df/pugixml_cython-0.1.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:21c4d338cb2bcc2c375fb44e4381ba3aa919d11d71a06273afe955f34e2ffe65", size = 399135, upload-time = "2026-09-09T01:12:05.786Z" },
+    { url = "https://files.pythonhosted.org/packages/b8/04/d03fe5db17542b90646e6c140495f574d3b7b5e4f4e05d34040940a4d741/pugixml_cython-0.1.1-cp313-cp313-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:fbafab8fbc6a2056b9720fdb9d067f5599f566f864dcef8a5cab5275896f329f", size = 1291808, upload-time = "2026-09-09T01:12:07.249Z" },
+    { url = "https://files.pythonhosted.org/packages/05/21/832ccb637d268552f614a5354274e0622351cde0687134f64358b60646ac/pugixml_cython-0.1.1-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:315b09c269db6f3033a8361324a6e717c10708ad01c67f637cd69818904e9929", size = 1313843, upload-time = "2026-09-09T01:12:08.783Z" },
+    { url = "https://files.pythonhosted.org/packages/e9/fa/ef075f6ba00acd9b6a93b61ffbceb57f2e087e4eacd08859efafb3f37d5c/pugixml_cython-0.1.1-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:f3a6d4085d329bbd9fef9e42fe012171ca166f7a438127dbdc1ab9a250c0465e", size = 2250211, upload-time = "2026-09-09T01:12:10.424Z" },
+    { url = "https://files.pythonhosted.org/packages/c5/86/2ab961e21e1934b1e8d40da6aad6629f165a4927a785f2ed43b724a3136b/pugixml_cython-0.1.1-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:c56899e7c010cb3c35ea158116a46ae58ad6bba416bc4e552885acc3c66f1dd9", size = 2334281, upload-time = "2026-09-09T01:12:12.206Z" },
+    { url = "https://files.pythonhosted.org/packages/0f/a1/1e3eca5653e3c021a8d7abdd41c877b84c15cbd8abcacb5359a5ae8ddad3/pugixml_cython-0.1.1-cp313-cp313-win_amd64.whl", hash = "sha256:1d94e94ad5cb888195d2631dba4deed307f7f029786c14d6bd59111a623fd220", size = 534541, upload-time = "2026-09-09T01:12:13.945Z" },
+    { url = "https://files.pythonhosted.org/packages/7c/36/dba1359006168fd9ade25ee666d48e60931987511ffe7e005122c0886954/pugixml_cython-0.1.1-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:d2cc86781e0b6eabed385a5d09a781e9ab580e663c36af7dd9baf8cd6e120a03", size = 403085, upload-time = "2026-09-09T01:12:15.506Z" },
+    { url = "https://files.pythonhosted.org/packages/d2/ec/59facf3c6791a903ab6dcdaae04c4cade89694ad68fd2df5531464117a86/pugixml_cython-0.1.1-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:d27b5b5ccac2f860f83e85635699c76e581d7b146fb95265d26e20b431cac878", size = 399693, upload-time = "2026-09-09T01:12:16.911Z" },
+    { url = "https://files.pythonhosted.org/packages/f5/55/8eabd4afb01c425e1a2c705bf2277ca656e9dae590e69598b829d30c0447/pugixml_cython-0.1.1-cp314-cp314-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:39d1c7821e001eaf8e3f0defa411c9f31168147358dd25ff97b361b6beb0c205", size = 1293227, upload-time = "2026-09-09T01:12:18.663Z" },
+    { url = "https://files.pythonhosted.org/packages/51/5d/06a32b76d9b726e20e298e8233f674dba5e0a4eb636d917d51a7acca85f6/pugixml_cython-0.1.1-cp314-cp314-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:0f3a8229a9629bddd6a22305c85efb5a8d202e762f0f926cdcde4802efaaf641", size = 1312590, upload-time = "2026-09-09T01:12:20.291Z" },
+    { url = "https://files.pythonhosted.org/packages/20/e6/3ef9a77d2f32353e171932f91360784a8a7168a3c71c1c4e1c8c28e09de3/pugixml_cython-0.1.1-cp314-cp314-musllinux_1_2_aarch64.whl", hash = "sha256:8f716d39821de7183c4d96596ee3d32b0fa2138b8b589a05cda7e479f2cdad1d", size = 2251237, upload-time = "2026-09-09T01:12:22.083Z" },
+    { url = "https://files.pythonhosted.org/packages/d9/48/429b9c5b8d497d7ae365cfd410f00d3097827204aa10877033c6b31ec932/pugixml_cython-0.1.1-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:eadd081115fe5e03ea01c90117989df857c4407fb7e812aa24c4d36f99d1ce9c", size = 2333480, upload-time = "2026-09-09T01:12:24.056Z" },
+    { url = "https://files.pythonhosted.org/packages/fe/10/908ee0dcd02dbee42f8b380bb4d6fa6d5168c3181ab6f7f157601c18a5ed/pugixml_cython-0.1.1-cp314-cp314-win_amd64.whl", hash = "sha256:ebc8f61178651f0d40ee1b3fc562b7c1eb343072a1017c51fd9f609bbc9493d0", size = 543127, upload-time = "2026-09-09T01:12:25.529Z" },
+]
+
+[[package]]
 name = "pure-eval"
 version = "0.2.3"
 source = { registry = "https://pypi.org/simple" }
@@ -1541,10 +1557,10 @@ version = "5.3.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version == '3.12.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version == '3.11.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version < '3.11' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version == '3.12.*' and platform_machine != 'x86_64') or (python_full_version == '3.12.*' and sys_platform != 'darwin')",
+    "python_full_version == '3.11.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version == '3.11.*' and platform_machine != 'x86_64') or (python_full_version == '3.11.*' and sys_platform != 'darwin')",
+    "python_full_version < '3.11' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version < '3.11' and platform_machine != 'x86_64') or (python_full_version < '3.11' and sys_platform != 'darwin')",
 ]
 dependencies = [
@@ -1710,38 +1726,13 @@ wheels = [
 name = "stubgen-pyx"
 version = "0.2.21"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "(python_full_version >= '3.13' and platform_machine != 'x86_64') or (python_full_version >= '3.13' and sys_platform != 'darwin')",
-    "(python_full_version == '3.12.*' and platform_machine != 'x86_64') or (python_full_version == '3.12.*' and sys_platform != 'darwin')",
-    "(python_full_version == '3.11.*' and platform_machine != 'x86_64') or (python_full_version == '3.11.*' and sys_platform != 'darwin')",
-    "(python_full_version < '3.11' and platform_machine != 'x86_64') or (python_full_version < '3.11' and sys_platform != 'darwin')",
-]
 dependencies = [
-    { name = "cython", version = "3.3.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "cython" },
     { name = "isort" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/04/f6/313dac698336faaba88399513ff8f461a5bbf320344828b06b3a14863a2f/stubgen_pyx-0.2.21.tar.gz", hash = "sha256:4b2a5508400f53baf20625cf16bc3f57d5772d63e08704e4d5328bf5b0c0373b", size = 96254, upload-time = "2026-08-28T02:41:00.803Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/43/6c/352f115f7773f6d1774a899acc013001f524cb7ca4dc5d4c8a3a30bffd24/stubgen_pyx-0.2.21-py3-none-any.whl", hash = "sha256:b45127c8be09b736b05adc287f200b962fce21c4affb48a6a09b7badbe4b4ff7", size = 68310, upload-time = "2026-08-28T02:40:59.833Z" },
-]
-
-[[package]]
-name = "stubgen-pyx"
-version = "0.2.22"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.13' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version == '3.12.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version == '3.11.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version < '3.11' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-]
-dependencies = [
-    { name = "cython", version = "3.1.5", source = { registry = "https://pypi.org/simple" } },
-    { name = "isort" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/9a/bb/7e7c4ca2df8047dd10316773af8c54b1cb871637230b33183eb8b5a8de0e/stubgen_pyx-0.2.22.tar.gz", hash = "sha256:9f8c7d75eb9480e4b98bed7027895c33c998c21e2b78d549212bd4c52bf0b20f", size = 96248, upload-time = "2026-08-28T03:13:26.774Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/06/11/8f91160be35a114edab908e24417e1983d73e6839e0e797458dc7df6b020/stubgen_pyx-0.2.22-py3-none-any.whl", hash = "sha256:740a0d17d0bb6fa6997eb3dfc93d1f57b82bc37c5c270e22fd2fbf99bf30841a", size = 68316, upload-time = "2026-08-28T03:13:25.67Z" },
 ]
 
 [[package]]

@@ -7,35 +7,12 @@ from libc.string cimport strcpy
 # import xml.etree.ElementTree as ET
 import re
 
+from pugixml_cython.pugixml cimport _attribute_map_to_dict
+
 
 __all__ = ('MetadataFrame', 'MetadataRecvFrame', 'MetadataSendFrame')
 
 
-cdef object DOC_PATTERN = re.compile(r'<(?P<tag>[A-Za-z_:][\w:.-]*)\s*(?P<attrs>[^>]*?)\s*\/>')
-cdef object ATTR_PATTERN = re.compile(
-    r'(?:^|\s+)(?P<name>[A-Za-z_:][\w:.-]*)="(?P<value>[^"]*)"'
-)
-
-
-def parse_xml(str xml):
-    cdef object m = DOC_PATTERN.match(xml)
-    if m is None:
-        return None, None
-    cdef str tag = m['tag'], attr_str = m['attrs']
-    cdef dict attrs = {}, d
-
-    # cdef str key, value
-
-    for m in ATTR_PATTERN.finditer(attr_str):
-        d = m.groupdict()
-        key = d['name']
-        if key is None:
-            continue
-        value = d['value']
-        if value is None:
-            continue
-        attrs[key] = value
-    return tag, attrs
 
 
 cdef class MetadataFrame:
@@ -77,6 +54,8 @@ cdef class MetadataFrame:
         self.xml_bytes = b''
 
     def __init__(self, *args, **kwargs):
+        self.xml_doc = Document()
+        self.root_element = None
         self.tag = None
         self.attrs = {}
 
@@ -164,17 +143,20 @@ cdef class MetadataRecvFrame(MetadataFrame):
     cdef int _prepare_incoming(self, NDIlib_recv_instance_t recv_ptr) except -1:
         self.tag = None
         self.attrs.clear()
+        self.root_element = None
         return 0
     cdef int _process_incoming(self, NDIlib_recv_instance_t recv_ptr) except -1:
-        self.xml_bytes = self.ptr.p_data
-        cdef str data_str = self.xml_bytes.decode('UTF-8')
-        if len(data_str):
-            tag, attrs = parse_xml(data_str)
-            if tag is not None:
-                self.tag = tag
-                self.attrs = attrs
-        if recv_ptr is not NULL:
-            NDIlib_recv_free_metadata(recv_ptr, self.ptr)
+        cdef const char* xml_string
+        try:
+            self.xml_bytes = self.ptr.p_data
+            xml_string = self.ptr.p_data
+            self.xml_doc._load_string(xml_string)
+            self.root_element = self.xml_doc._get_root()
+            self.tag = self.root_element.node_struct.name.decode('UTF-8')
+            self.attrs = _attribute_map_to_dict(self.root_element.node_struct.attribute_map)
+        finally:
+            if recv_ptr is not NULL:
+                NDIlib_recv_free_metadata(recv_ptr, self.ptr)
         return 0
 
 
