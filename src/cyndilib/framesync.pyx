@@ -132,6 +132,10 @@ cdef class FrameSync:
 
     cdef int _capture_video(self, FrameFormat fmt = FrameFormat.progressive) except -1:
         cdef NDIlib_video_frame_v2_t* video_ptr = self.video_frame.ptr
+        if self.video_frame.view_count == 0:
+            # The previous capture is only freed when a buffer view of it is
+            # released; one that was never read would leak otherwise.
+            self.video_frame._free_framesync_data()
         self._do_capture_video(video_ptr, fmt)
         self.video_frame._process_incoming()
         return 0
