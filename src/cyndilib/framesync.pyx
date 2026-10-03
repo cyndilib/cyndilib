@@ -132,10 +132,14 @@ cdef class FrameSync:
 
     cdef int _capture_video(self, FrameFormat fmt = FrameFormat.progressive) except -1:
         cdef NDIlib_video_frame_v2_t* video_ptr = self.video_frame.ptr
-        if self.video_frame.view_count == 0:
-            # The previous capture is only freed when a buffer view of it is
-            # released; one that was never read would leak otherwise.
-            self.video_frame._free_framesync_data()
+        if self.video_frame.view_count > 0:
+            # Checked before capturing: the capture overwrites the frame struct,
+            # so raising only afterwards (in _process_incoming) lost the pointer
+            # to the frame the view still holds, and that frame was never freed.
+            raise ValueError('cannot write with view active')
+        # The previous capture is only freed when a buffer view of it is
+        # released; one that was never read would leak otherwise.
+        self.video_frame._free_framesync_data()
         self._do_capture_video(video_ptr, fmt)
         self.video_frame._process_incoming()
         return 0
@@ -157,9 +161,11 @@ cdef class FrameSync:
                 if not truncate:
                     return 0
                 no_samples = num_available
-        if self.audio_frame.view_count == 0:
-            # Same as _capture_video(): free a previous capture that was never read.
-            self.audio_frame._free_framesync_data()
+        if self.audio_frame.view_count > 0:
+            # Same as _capture_video(): refuse before the capture overwrites the struct.
+            raise ValueError('cannot write with view active')
+        # Same as _capture_video(): free a previous capture that was never read.
+        self.audio_frame._free_framesync_data()
         self._do_capture_audio(audio_ptr, no_samples)
         self.audio_frame._process_incoming()
         return no_samples
