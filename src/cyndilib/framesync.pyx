@@ -157,6 +157,9 @@ cdef class FrameSync:
                 if not truncate:
                     return 0
                 no_samples = num_available
+        if self.audio_frame.view_count == 0:
+            # Same as _capture_video(): free a previous capture that was never read.
+            self.audio_frame._free_framesync_data()
         self._do_capture_audio(audio_ptr, no_samples)
         self.audio_frame._process_incoming()
         return no_samples
