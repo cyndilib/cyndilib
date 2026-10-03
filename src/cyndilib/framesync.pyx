@@ -51,17 +51,6 @@ cdef class FrameSync:
     def __dealloc__(self):
         cdef NDIlib_framesync_instance_t ptr = self.ptr
         if ptr is not NULL:
-            # Give back a last capture that was never read, and detach the
-            # frames so a later buffer release can't free into the destroyed
-            # instance. (The frames may already be None if collected in a cycle.)
-            if self.video_frame is not None:
-                if self.video_frame.view_count == 0:
-                    self.video_frame._free_framesync_data()
-                self.video_frame._free_framesync_pointers()
-            if self.audio_frame is not None:
-                if self.audio_frame.view_count == 0:
-                    self.audio_frame._free_framesync_data()
-                self.audio_frame._free_framesync_pointers()
             self.ptr = NULL
             NDIlib_framesync_destroy(ptr)
 
