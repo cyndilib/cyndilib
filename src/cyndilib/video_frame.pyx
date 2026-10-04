@@ -651,9 +651,11 @@ cdef class VideoFrameSync(VideoFrame):
 
     cdef void _free_framesync_data(self) noexcept nogil:
         cdef FrameSyncVideoInstance_s* ptr = &self.framesync_instance
-        if ptr.free_data is NULL:
+        if ptr.free_data is NULL or self.ptr.p_data is NULL:
             return
         ptr.free_data(ptr, self.ptr)
+        # Mark as freed: capture_video() and __releasebuffer__ may both try.
+        self.ptr.p_data = NULL
 
 
     def get_array(self):
