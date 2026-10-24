@@ -1,7 +1,13 @@
+from typing import Protocol
 
 from cyndilib.audio_frame import AudioFrameSync
 from cyndilib.video_frame import VideoFrameSync
 from cyndilib.wrapper import *
+
+class SupportsBufferInterface(Protocol):
+    """Protocol for objects that support the buffer interface"""
+    def __buffer__(self, flags: int, /) -> memoryview: ...
+
 
 class BaseFrameSyncHelper:
 
@@ -25,7 +31,7 @@ class AudioFrameSyncHelper(BaseFrameSyncHelper):
     def set_audio_frame(self, audio_frame: AudioFrameSync):
         ...
 
-    def fill_data(self, samples: memoryview, sample_rate: int, timestamp: float):
+    def fill_data(self, samples: memoryview | SupportsBufferInterface, sample_rate: int, timestamp: float):
         """Fill audio frame with data and simulate the processing that
         occurs within the `FrameSync` and `AudioFrameSync` classes.
         """
