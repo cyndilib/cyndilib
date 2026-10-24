@@ -86,6 +86,7 @@ test = [
     "setuptools",
     "cython>=3.3.0",
     "pytest-codspeed>=4.0.0",
+    "ruff>=0.17.2",
 ]
 doc = [
     "Sphinx>=5.0,<6.0; python_version<'3.13'",
@@ -112,6 +113,17 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-n auto --no-success-flaky-report --doctest-modules --doctest-glob='*.rst'"
+
+
+[tool.ruff]
+include = [
+    "pyproject.toml",
+    "src/**/*.py",
+    "src/**/*.pyi",
+    "tests/**/*.py",
+    "tests/**/*.pyi",
+    "examples/**/*.py",
+]
 
 
 [tool.cibuildwheel]
