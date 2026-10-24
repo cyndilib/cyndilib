@@ -1,6 +1,5 @@
 # import _cython_3_0_10
-from typing_extensions import Self
-
+from typing import Self
 
 class Lock:
     # __pyx_vtable__: ClassVar[PyCapsule] = ...

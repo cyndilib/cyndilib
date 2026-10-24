@@ -1,20 +1,21 @@
 #! /usr/bin/env python3
 
 from __future__ import annotations
-from typing import Literal, TypedDict
-import os
-import sys
-import shlex
-import json
+
 import concurrent.futures
+import json
+import os
+import shlex
+import sys
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Literal, TypedDict
+
 import numpy
-from Cython.Build import cythonize, Cythonize
+import pugixml_cython
+from Cython.Build import Cythonize, cythonize
 from Cython.Build.Dependencies import extended_iglob
 from Cython.Compiler import Options
-
-import pugixml_cython
 
 import cyndilib
 
@@ -213,7 +214,7 @@ def cython_compile(path_pattern, options):
         for task in compiler_tasks:  # discover any crashes
             try:
                 task.result()
-            except BaseException as proc_err:  # could be SystemExit
+            except BaseException as proc_err:  # could be SystemExit  # noqa: BLE001
                 worker_exceptions.append(proc_err)
 
         if worker_exceptions:
@@ -245,7 +246,7 @@ def do_cythonize(pyx_file, opts=None):
         opts = build_opts()
 
     opts = f'{opts} {pyx_file}'
-    parsed, paths = Cythonize.parse_args(shlex.split(opts))
+    parsed, _paths = Cythonize.parse_args(shlex.split(opts))
     assert parsed.parallel == CPU_COUNT
     if parsed.annotate:
         Options.annotate = True

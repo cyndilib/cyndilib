@@ -1,9 +1,8 @@
-from __future__ import annotations
 
-from typing import Self, Iterator, Mapping
+from collections.abc import Iterator, Mapping
+from typing import Self
 
-
-from .finder import Source, Finder
+from .finder import Finder, Source
 
 __all__ = ("Router", "RoutingMatrix")
 

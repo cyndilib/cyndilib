@@ -1,14 +1,15 @@
 # import _cython_3_0_10
-from _typeshed import ReadOnlyBuffer, ReadableBuffer, WriteableBuffer
 from fractions import Fraction
+from typing import TypeAlias
 
-import numpy.typing as npt
 import numpy as np
+import numpy.typing as npt
+from _typeshed import ReadableBuffer, ReadOnlyBuffer, WriteableBuffer
 
+from .locks import Condition, RLock
 from .wrapper import FourCC, FrameFormat
-from .locks import RLock, Condition
 
-_UintArray = npt.NDArray[np.uint8]
+_UintArray: TypeAlias = npt.NDArray[np.uint8]
 
 
 class VideoFrame:

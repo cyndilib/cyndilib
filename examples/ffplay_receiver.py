@@ -1,19 +1,19 @@
 from __future__ import annotations
 
-from typing import NamedTuple, TYPE_CHECKING
-from typing_extensions import Self
 import enum
-import time
-import subprocess
 import shlex
+import subprocess
+import time
+from typing import TYPE_CHECKING, NamedTuple, Self
 
 import click
 
-from cyndilib.wrapper.ndi_structs import FourCC
-from cyndilib.wrapper.ndi_recv import RecvColorFormat, RecvBandwidth
-from cyndilib.video_frame import VideoFrameSync
-from cyndilib.receiver import Receiver
 from cyndilib.finder import Finder
+from cyndilib.receiver import Receiver
+from cyndilib.video_frame import VideoFrameSync
+from cyndilib.wrapper.ndi_recv import RecvBandwidth, RecvColorFormat
+from cyndilib.wrapper.ndi_structs import FourCC
+
 if TYPE_CHECKING:
     from cyndilib.finder import Source
 
@@ -84,7 +84,7 @@ def get_source(finder: Finder, name: str) -> Source:
     for source in finder:
         if source.name == name or source.stream_name == name:
             return source
-    raise Exception(f'source not found. {finder.get_source_names()=}')
+    raise RuntimeError(f'source not found. {finder.get_source_names()=}')
 
 
 def wait_for_first_frame(receiver: Receiver) -> None:
@@ -131,7 +131,7 @@ def play(options: Options) -> None:
         i = 0
         while not receiver.is_connected():
             if i > 30:
-                raise Exception('timeout waiting for connection')
+                raise RuntimeError('timeout waiting for connection')
             time.sleep(.5)
             i += 1
         click.echo('connected')

@@ -1,14 +1,15 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+
 import time
+from typing import TYPE_CHECKING
 
 import click
+
 if TYPE_CHECKING:
     from click._termui_impl import ProgressBar
 
 
 from cyndilib.router import Router, RoutingMatrix
-
 
 
 def format_matrix(matrix: RoutingMatrix|None) -> str:

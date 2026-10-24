@@ -1,6 +1,5 @@
 import enum
 
-
 class RecvBandwidth(enum.IntEnum):
     audio_only = ...
     highest = ...

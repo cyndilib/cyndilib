@@ -1,13 +1,11 @@
-from __future__ import annotations
-from typing import TypeVar
 import enum
+from typing import TypeAlias, TypeVar
 
 import numpy as np
 
-
 _FloatT = TypeVar('_FloatT', np.dtype[np.float32], np.dtype[np.float64])
 
-_FloatArray = np.ndarray[tuple[int, int], _FloatT]
+_FloatArray: TypeAlias = np.ndarray[tuple[int, int], _FloatT]
 
 class AudioReference(enum.Enum):
     dBu = ...

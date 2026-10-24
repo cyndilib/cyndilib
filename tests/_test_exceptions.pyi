@@ -1,7 +1,5 @@
-from __future__ import annotations
 
 from cyndilib.wrapper.common import *
-
 
 class InvalidExceptionType(TypeError):
     ...

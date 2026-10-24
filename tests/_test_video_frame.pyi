@@ -1,10 +1,10 @@
-from __future__ import annotations
 
 from typing import overload
 
 import cython
 import numpy as np
 import numpy.typing as npt
+
 from cyndilib.video_frame import VideoRecvFrame
 from cyndilib.wrapper import *
 

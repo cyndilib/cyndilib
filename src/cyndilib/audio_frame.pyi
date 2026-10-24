@@ -1,15 +1,15 @@
-from __future__ import annotations
 # import _cython_3_0_10
-from _typeshed import ReadOnlyBuffer, ReadableBuffer, WriteableBuffer
-import numpy.typing as npt
+from typing import TypeAlias
+
 import numpy as np
+import numpy.typing as npt
+from _typeshed import ReadableBuffer, ReadOnlyBuffer, WriteableBuffer
 
 from . import locks
 from .audio_reference import AudioReference
 
-
-_FloatArray = npt.NDArray[np.float32]
-_IntArray = npt.NDArray[np.integer]
+_FloatArray: TypeAlias = npt.NDArray[np.float32]
+_IntArray: TypeAlias = npt.NDArray[np.integer]
 
 class AudioFrame:
     # __pyx_vtable__: ClassVar[PyCapsule] = ...

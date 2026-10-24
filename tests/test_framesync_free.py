@@ -7,12 +7,12 @@ whose frame's free function is swapped for the counting one of
 """
 import numpy as np
 import pytest
+from _framesync_helpers import AudioFrameSyncHelper, VideoFrameSyncHelper
 
 from cyndilib.audio_frame import AudioFrameSync
 from cyndilib.receiver import Receiver
 from cyndilib.video_frame import VideoFrameSync
 from cyndilib.wrapper import FourCC
-from _framesync_helpers import AudioFrameSyncHelper, VideoFrameSyncHelper
 
 WIDTH, HEIGHT = 64, 32
 
@@ -34,7 +34,7 @@ def _fill(helper, i=0):
 
 
 def test_unread_capture_is_freed_by_the_next_capture():
-    receiver, vf, helper = _video()
+    receiver, _vf, helper = _video()
     _fill(helper)
     assert helper.num_outstanding == 1
     receiver.frame_sync.capture_video()  # real capture call (no source: nothing new arrives)
@@ -42,7 +42,7 @@ def test_unread_capture_is_freed_by_the_next_capture():
 
 
 def test_many_unread_captures_dont_pile_up():
-    receiver, vf, helper = _video()
+    receiver, _vf, helper = _video()
     for i in range(50):
         _fill(helper, i)
         receiver.frame_sync.capture_video()

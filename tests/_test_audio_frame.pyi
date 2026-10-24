@@ -1,8 +1,6 @@
-from __future__ import annotations
 
 from cyndilib.audio_frame import AudioFrameSync, AudioRecvFrame, AudioSendFrame
 from cyndilib.wrapper import *
-
 
 def get_audio_send_frame_current_data(audio_frame: AudioSendFrame):
     """Hook to read the data from an AudioSendFrame directly after

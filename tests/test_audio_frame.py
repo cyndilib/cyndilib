@@ -1,31 +1,29 @@
 from __future__ import annotations
-import time
-from typing import Literal, TypeVar, Generic, Sequence, Callable, get_args, cast
 
-from pprint import pprint
-from functools import partial
 import threading
+import time
 import traceback
-import pytest
+from collections.abc import Callable, Sequence
+from typing import Generic, Literal, TypeVar, cast, get_args
 
 import numpy as np
-
-from conftest import AudioInitParams, AudioParams, IS_CI_BUILD
-
-from cyndilib.locks import RLock, Condition
-from cyndilib.audio_frame import AudioRecvFrame, AudioFrameSync, AudioSendFrame
-
+import pytest
+from _framesync_helpers import AudioFrameSyncHelper
 from _test_audio_frame import (
-    fill_audio_frame, fill_audio_frame_sync, audio_frame_process_events,
+    fill_audio_frame,
     get_audio_send_frame_current_data,
 )
-from _framesync_helpers import (
-    AudioFrameSyncHelper
-)
 from _test_send_frame_status import (
-    set_send_frame_sender_status, set_send_frame_send_complete,
-    check_audio_send_frame, get_max_frame_buffers, get_null_idx,
+    check_audio_send_frame,
+    get_max_frame_buffers,
+    get_null_idx,
+    set_send_frame_send_complete,
+    set_send_frame_sender_status,
 )
+from conftest import IS_CI_BUILD, AudioInitParams, AudioParams
+
+from cyndilib.audio_frame import AudioFrameSync, AudioRecvFrame, AudioSendFrame
+from cyndilib.locks import Condition, RLock
 
 NULL_INDEX = get_null_idx()
 MAX_FRAME_BUFFERS = get_max_frame_buffers()
@@ -41,7 +39,7 @@ _StateCallback = Callable[[], bool]
 
 
 class State(Generic[_K]):
-    def __init__(self, group: 'StateGroup', name: _K, index_: int):
+    def __init__(self, group: StateGroup, name: _K, index_: int):
         self.__name = name
         self.__index = index_
         self._active = False
@@ -314,14 +312,14 @@ class StateThread(threading.Thread, Generic[_T]):
                         g.wait_if_no_continue()
                 try:
                     g.call_state_handler()
-                except Exception as exc:
+                except Exception as exc:  # noqa: BLE001
                     self.exc = exc
                     traceback.print_exc()
                     with self.exc_cond:
                         self.exc_cond.notify_all()
                     break
                 self.handle_state(state)
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             self.exc = exc
             traceback.print_exc()
             with self.exc_cond:
@@ -399,7 +397,7 @@ def test_buffer_read_all(fake_audio_data: AudioParams):
     # read_timestamps = np.zeros_like(ndi_timestamps)
 
     for i in range(max_buffers):
-        ndi_ts, read_indices = fill_audio_frame(audio_frame, samples[i], fs, timestamps[i])
+        ndi_ts, _ = fill_audio_frame(audio_frame, samples[i], fs, timestamps[i])
         ndi_timestamps[i] = ndi_ts
         bfr_depth = audio_frame.get_buffer_depth()
         # print(f'{read_indices=}')
@@ -445,7 +443,6 @@ def test_buffer_read_single(fake_audio_data_longer: AudioParams):
     assert max_buffers * s_perseg == N // 2
 
     samples = fake_audio_data.samples_3d
-    samples_flat = fake_audio_data.samples_2d
     timestamps = np.arange(num_segments) / fs * s_perseg
     ndi_timestamps = np.zeros(num_segments, dtype=np.int32)
     results = np.zeros((num_segments, num_channels, s_perseg), dtype=np.float32)
@@ -466,7 +463,6 @@ def test_buffer_read_single(fake_audio_data_longer: AudioParams):
 
 def test_buffer_fill_read_data(fake_audio_data: AudioParams):
     fs = fake_audio_data.sample_rate
-    N = fake_audio_data.num_samples
     num_channels = fake_audio_data.num_channels
     max_buffers = fake_audio_data.num_segments
     num_segments = fake_audio_data.num_segments
@@ -474,14 +470,13 @@ def test_buffer_fill_read_data(fake_audio_data: AudioParams):
     audio_frame = AudioRecvFrame(max_buffers=max_buffers)
 
     samples = fake_audio_data.samples_3d
-    samples_flat = fake_audio_data.samples_2d
     timestamps = np.arange(num_segments) / fs * s_perseg
     ndi_timestamps = np.zeros(num_segments, dtype=np.int32)
     results = np.zeros((num_segments, num_channels, s_perseg), dtype=np.float32)
     read_data = np.zeros((num_channels, s_perseg), dtype=np.float32)
 
     for i in range(num_segments):
-        ndi_ts, read_indices = fill_audio_frame(audio_frame, samples[i], fs, timestamps[i])
+        ndi_ts, _ = fill_audio_frame(audio_frame, samples[i], fs, timestamps[i])
         ndi_timestamps[i] = ndi_ts
         read_timestamp = audio_frame.fill_read_data(read_data)
         assert read_timestamp == ndi_ts
@@ -494,7 +489,6 @@ def test_buffer_fill_read_data(fake_audio_data: AudioParams):
 def test_buffer_fill_read_data_threaded(fake_audio_data: AudioParams):
     MAX_TIMEOUT = 300
     fs = fake_audio_data.sample_rate
-    N = fake_audio_data.num_samples
     num_channels = fake_audio_data.num_channels
     max_buffers = fake_audio_data.num_segments // 2
     num_segments = fake_audio_data.num_segments
@@ -502,9 +496,7 @@ def test_buffer_fill_read_data_threaded(fake_audio_data: AudioParams):
     audio_frame = AudioRecvFrame(max_buffers=max_buffers)
 
     samples = fake_audio_data.samples_3d
-    samples_flat = fake_audio_data.samples_2d
     timestamps = np.arange(num_segments) / fs * s_perseg
-    ndi_timestamps = np.zeros(num_segments, dtype=np.int32)
     results = np.zeros((num_segments, num_channels, s_perseg), dtype=np.float32)
     result_timestamps = np.zeros(num_segments, dtype=np.int64)
     read_data = np.zeros((num_channels, s_perseg), dtype=np.float32)
@@ -560,7 +552,7 @@ def test_buffer_fill_read_data_threaded(fake_audio_data: AudioParams):
     read_thread.started.wait()
     send_thread.continue_evt.set()
     # read_thread.continue_evt.set()
-    state = send_states['FILL_FRAME']
+    send_states['FILL_FRAME']
     try:
         while send_thread.cur_iteration < max_buffers:
             with send_states:
@@ -593,7 +585,6 @@ def test_buffer_overwrite(fake_audio_data_longer: AudioParams):
     fake_audio_data = fake_audio_data_longer
     fs = fake_audio_data.sample_rate
     N = fake_audio_data.num_samples
-    num_channels = fake_audio_data.num_channels
     max_buffers = fake_audio_data.num_segments // 2
     num_segments = fake_audio_data.num_segments
     s_perseg = fake_audio_data.s_perseg
@@ -602,10 +593,8 @@ def test_buffer_overwrite(fake_audio_data_longer: AudioParams):
     assert max_buffers * s_perseg == N // 2
 
     samples = fake_audio_data.samples_3d
-    samples_flat = fake_audio_data.samples_2d
     timestamps = np.arange(num_segments) / fs * s_perseg
     ndi_timestamps = np.zeros(num_segments, dtype=np.int32)
-    results = np.zeros((num_segments, num_channels, s_perseg), dtype=np.float32)
 
     for i in range(num_segments):
         ndi_ts, read_indices = fill_audio_frame(audio_frame, samples[i], fs, timestamps[i])
@@ -634,10 +623,6 @@ def test_frame_sync(fake_audio_data_longer: AudioParams):
 
     fs = fake_audio_data.sample_rate
     N = fake_audio_data.num_samples
-    num_channels = fake_audio_data.num_channels
-    max_buffers = fake_audio_data.num_segments // 2
-    num_segments = fake_audio_data.num_segments
-    s_perseg = fake_audio_data.s_perseg
     audio_frame = AudioFrameSync()
     fs_helper = AudioFrameSyncHelper()
     fs_helper.set_audio_frame(audio_frame)
@@ -660,9 +645,7 @@ def test_frame_sync(fake_audio_data_longer: AudioParams):
             if i > 32:
                 return num_remain
 
-    samples = fake_audio_data.samples_3d
     samples_flat = fake_audio_data.samples_2d
-    ndi_timestamps = []
     results = []
 
     num_samples_used = 0
@@ -690,13 +673,11 @@ def test_frame_sync(fake_audio_data_longer: AudioParams):
 
 def test_audio_send_frame(fake_audio_data: AudioParams):
     fs = fake_audio_data.sample_rate
-    N = fake_audio_data.num_samples
     num_channels = fake_audio_data.num_channels
     num_segments = fake_audio_data.num_segments
     s_perseg = fake_audio_data.s_perseg
 
     samples = fake_audio_data.samples_3d
-    samples_flat = fake_audio_data.samples_2d
 
     af = AudioSendFrame()
     af.sample_rate = fs
@@ -771,8 +752,7 @@ def test_audio_send_frame_irregular_sample_count(fake_audio_data: AudioParams):
         seg_len = s_perseg
         if i % 2 == 0:
             seg_len //= 2
-        if seg_len > samples_remaining:
-            seg_len = samples_remaining
+        seg_len = min(seg_len, samples_remaining)
         end_ix = start_ix + seg_len
 
         _samples = samples_flat[:,start_ix:end_ix]

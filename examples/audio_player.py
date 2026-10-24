@@ -1,6 +1,7 @@
 from __future__ import annotations
-from typing import NamedTuple, TYPE_CHECKING
+
 import time
+from typing import TYPE_CHECKING, NamedTuple
 
 import click
 import numpy as np
@@ -9,10 +10,11 @@ import sounddevice as sd
 from cyndilib import (
     AudioFrameSync,
     AudioReference,
-    VideoFrameSync,
-    Receiver,
     Finder,
+    Receiver,
+    VideoFrameSync,
 )
+
 if TYPE_CHECKING:
     from cyndilib.finder import Source
 
@@ -40,7 +42,7 @@ def get_source(finder: Finder, name: str) -> Source:
     for source in finder:
         if source.name == name or source.stream_name == name:
             return source
-    raise Exception(f'source not found. {finder.get_source_names()=}')
+    raise RuntimeError(f'source not found. {finder.get_source_names()=}')
 
 
 
@@ -92,7 +94,7 @@ def play(options: Options) -> None:
         i = 0
         while not receiver.is_connected():
             if i > 30:
-                raise Exception('timeout waiting for connection')
+                raise RuntimeError('timeout waiting for connection')
             time.sleep(.5)
             i += 1
         click.echo('connected')

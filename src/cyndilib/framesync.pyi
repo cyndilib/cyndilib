@@ -1,16 +1,11 @@
 # import _cython_3_0_10
 import threading
 
-from typing import TYPE_CHECKING
-
-from .wrapper import FrameFormat
 from .audio_frame import AudioFrameSync
+from .callback import _CallbackType
+from .receiver import ReceiveFrameType, Receiver
 from .video_frame import VideoFrameSync
-from .receiver import Receiver, ReceiveFrameType
-
-if TYPE_CHECKING:
-    from .callback import _CallbackType
-
+from .wrapper import FrameFormat
 
 class FrameSync:
     # __pyx_vtable__: ClassVar[PyCapsule] = ...

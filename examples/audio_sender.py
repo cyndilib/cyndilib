@@ -1,15 +1,16 @@
 from __future__ import annotations
-from typing import NamedTuple, Generator
-from fractions import Fraction
+
 import time
+from collections.abc import Generator
+from fractions import Fraction
+from typing import NamedTuple
 
-import numpy as np
 import click
+import numpy as np
 
-from cyndilib.wrapper.ndi_structs import FourCC
-from cyndilib import VideoSendFrame, AudioSendFrame, AudioReference
+from cyndilib import AudioReference, AudioSendFrame, VideoSendFrame
 from cyndilib.sender import Sender
-
+from cyndilib.wrapper.ndi_structs import FourCC
 
 FloatArray2D = np.ndarray[tuple[int, int], np.dtype[np.float32]]
 FloatArray3D = np.ndarray[tuple[int, int, int], np.dtype[np.float32]]
@@ -141,9 +142,8 @@ def send(opts: Options) -> None:
 
     with sender:
         for samples in sig_generator:
-            if opts.num_frames is not None:
-                if num_frames_sent >= opts.num_frames:
-                    break
+            if opts.num_frames is not None and num_frames_sent >= opts.num_frames:
+                break
 
             # Write the video and audio data to the sender
             # Note that we don't have to wait in between frames,

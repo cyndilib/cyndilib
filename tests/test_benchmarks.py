@@ -1,19 +1,21 @@
 from __future__ import annotations
-from typing import Callable
+
+from collections.abc import Callable
 from fractions import Fraction
 
 import numpy as np
 import pytest
-from cyndilib import AudioReference
-from cyndilib.video_frame import VideoSendFrame, VideoFrameSync
-from cyndilib.audio_frame import AudioSendFrame, AudioFrameSync
-from cyndilib.wrapper import FourCC
 from _bench_helpers import BenchSender
 from _framesync_helpers import (
-    VideoFrameSyncHelper,
     AudioFrameSyncHelper,
+    VideoFrameSyncHelper,
 )
-from conftest import VideoParams, VideoInitParams, AudioInitParams, AudioParams
+from conftest import AudioInitParams, AudioParams, VideoInitParams, VideoParams
+
+from cyndilib import AudioReference
+from cyndilib.audio_frame import AudioFrameSync, AudioSendFrame
+from cyndilib.video_frame import VideoFrameSync, VideoSendFrame
+from cyndilib.wrapper import FourCC
 
 
 @pytest.fixture(params=list(AudioReference), ids=lambda ar: ar.name)
@@ -181,7 +183,6 @@ def test_video_framesync_benchmark(benchmark, fake_video_frames_bench: VideoPara
 
 
 def test_audio_framesync_benchmark(benchmark, fake_audio_data_bench: AudioParams):
-    num_channels = fake_audio_data_bench.num_channels
     num_segments = fake_audio_data_bench.num_segments
     s_perseg = fake_audio_data_bench.s_perseg
     samples = fake_audio_data_bench.samples_3d

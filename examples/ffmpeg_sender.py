@@ -1,24 +1,23 @@
 from __future__ import annotations
 
-from typing import NamedTuple, Literal, Generator, Any, cast, get_args
-from typing_extensions import Self
 import enum
 import io
-import subprocess
 import shlex
-from fractions import Fraction
+import subprocess
+from collections.abc import Generator
 from contextlib import contextmanager
-
-import numpy as np
+from fractions import Fraction
+from typing import Any, Literal, NamedTuple, Self, cast, get_args
 
 import click
+import numpy as np
 
 from cyndilib import (
-    Sender,
-    VideoSendFrame,
+    AudioReference,
     AudioSendFrame,
     FourCC,
-    AudioReference,
+    Sender,
+    VideoSendFrame,
 )
 
 TestSource = Literal[
@@ -220,42 +219,41 @@ def send(opts: Options) -> None:
     i = 0
     frame_sent = False
 
-    with sender:
-        with ffmpeg_proc(opts) as ff_proc:
-            stdout = cast(io.BytesIO, ff_proc.stdout)
-            while True:
-                i += 1
-                if ff_proc.returncode is not None:
+    with sender, ffmpeg_proc(opts) as ff_proc:
+        stdout = cast(io.BytesIO, ff_proc.stdout)
+        while True:
+            i += 1
+            if ff_proc.returncode is not None:
+                break
+            # Read from the ffmpeg process into a view of the bytearray
+            num_read = stdout.readinto(mv)
+
+            # The first few reads might be empty, ignore
+            if num_read == 0:
+                if frame_sent:
+                    # If we've sent a frame and there's no output,
+                    # ffmpeg has likely quit without setting returncode
                     break
-                # Read from the ffmpeg process into a view of the bytearray
-                num_read = stdout.readinto(mv)
+                elif i > 1000:
+                    # Check for ffmpeg startup errors
+                    print('Timeout waiting for ffmpeg to produce output')
+                    break
+                continue
+            frame_sent = True
 
-                # The first few reads might be empty, ignore
-                if num_read == 0:
-                    if frame_sent:
-                        # If we've sent a frame and there's no output,
-                        # ffmpeg has likely quit without setting returncode
-                        break
-                    elif i > 1000:
-                        # Check for ffmpeg startup errors
-                        print('Timeout waiting for ffmpeg to produce output')
-                        break
-                    continue
-                frame_sent = True
-
-                # Pass the memoryview of the video frame data directly to the sender
-                # (using the buffer protocol)
-                sender.write_video_async(mv)
+            # Pass the memoryview of the video frame data directly to the sender
+            # (using the buffer protocol)
+            sender.write_video_async(mv)
 
 
-                # Generate the next audio frame's worth of samples and write to the sender.
-                # Since the video was sent asynchronously,
-                # the sender will handle syncing the audio and video frames.
-                samples = next(sample_iter)
-                sender.write_audio(samples)
+            # Generate the next audio frame's worth of samples and write to the sender.
+            # Since the video was sent asynchronously,
+            # the sender will handle syncing the audio and video frames.
+            samples = next(sample_iter)
+            sender.write_audio(samples)
 
-                if i % 10 == 0:
-                    ff_proc.poll()
+            if i % 10 == 0:
+                ff_proc.poll()
 
 
 

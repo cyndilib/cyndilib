@@ -1,7 +1,6 @@
 # import _cython_3_0_10
-from typing import TypedDict
 import enum
-
+from typing import TypedDict
 
 def get_ndi_version() -> str: ...
 
