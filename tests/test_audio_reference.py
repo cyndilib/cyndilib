@@ -1,18 +1,19 @@
 from __future__ import annotations
-from typing import Literal, TypedDict, Callable, cast, get_args
-from pathlib import Path
-import json
 
+import json
+from collections.abc import Callable
+from pathlib import Path
+from typing import Literal, TypedDict, cast, get_args
+
+import _test_audio_frame
 import numpy as np
 import numpy.typing as npt
 import pytest
-
-from cyndilib.audio_reference import AudioReference, AudioReferenceConverter
-from cyndilib import AudioFrameSync, AudioRecvFrame, AudioSendFrame
-from cyndilib.sender import Sender
 from conftest import AudioInitParams, AudioParams
-import _test_audio_frame
 
+from cyndilib import AudioFrameSync, AudioSendFrame
+from cyndilib.audio_reference import AudioReference, AudioReferenceConverter
+from cyndilib.sender import Sender
 
 ReferenceAmplitude = Literal['0.063', '0.1', '0.63', '1.0', '5.01', '10.0']
 ReferenceAmplitudes: list[ReferenceAmplitude] = list(get_args(ReferenceAmplitude))

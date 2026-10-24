@@ -1,13 +1,13 @@
 # import _cython_3_0_10
 
-from typing import Iterator, TYPE_CHECKING
-from typing_extensions import Self, deprecated
 import threading
+from collections.abc import Iterator
+from typing import Self
 
-from .locks import RLock, Condition, Event
+from typing_extensions import deprecated
 
-if TYPE_CHECKING:
-    from .callback import _CallbackType
+from .callback import _CallbackType
+from .locks import Condition, Event, RLock
 
 class Source:
     # __pyx_vtable__: ClassVar[PyCapsule] = ...

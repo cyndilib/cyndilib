@@ -1,9 +1,9 @@
-import pytest
 import threading
 import time
 import traceback
 
 from cyndilib import locks
+
 
 class WaitThread(threading.Thread):
     def __init__(self, condition, timeout=5):
@@ -17,7 +17,7 @@ class WaitThread(threading.Thread):
         try:
             with self.condition:
                 self.result = self.condition.wait(self.timeout)
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             traceback.print_exc()
             self.exception = exc
         finally:
@@ -35,7 +35,7 @@ class NotifyThread(threading.Thread):
         try:
             with self.condition:
                 self.condition.notify_all()
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             traceback.print_exc()
             self.exception = exc
         finally:

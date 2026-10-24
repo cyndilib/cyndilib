@@ -1,6 +1,5 @@
 
 from . import ndi_recv, ndi_structs
-
 from .ndi_recv import *
 from .ndi_structs import *
 

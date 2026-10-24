@@ -1,6 +1,9 @@
 from __future__ import annotations
-from typing import Literal, Iterable, Iterator
+
+from collections.abc import Iterator
 from fractions import Fraction
+from typing import Literal
+
 import pytest
 
 from cyndilib.video_frame import VideoSendFrame

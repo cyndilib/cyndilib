@@ -7,20 +7,19 @@ is run in a separate CI workflow.
 """
 from fractions import Fraction
 
-
 from cyndilib import (
     AudioFrame,
-    AudioRecvFrame,
     AudioFrameSync,
-    AudioSendFrame,
+    AudioRecvFrame,
     AudioReference,
+    AudioSendFrame,
+    FourCC,
     Receiver,
     Sender,
     VideoFrame,
     VideoFrameSync,
     VideoRecvFrame,
     VideoSendFrame,
-    FourCC,
 )
 from cyndilib.discovery.exceptions import DiscoveryServerUnavailableError
 from cyndilib.discovery.run_server import get_run_server_path

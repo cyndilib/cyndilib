@@ -1,14 +1,15 @@
 from __future__ import annotations
-from typing import Callable
-import pytest
-import numpy as np
 
-from cyndilib.wrapper import *
-from cyndilib.audio_frame import AudioSendFrame
-from cyndilib.video_frame import VideoSendFrame
+from collections.abc import Callable
 
 import _test_send_frame_status
-from conftest import AudioInitParams, AudioParams, VideoParams, IS_CI_BUILD
+import numpy as np
+import pytest
+from conftest import IS_CI_BUILD, AudioInitParams, AudioParams, VideoParams
+
+from cyndilib.audio_frame import AudioSendFrame
+from cyndilib.video_frame import VideoSendFrame
+from cyndilib.wrapper import *
 
 NULL_INDEX = _test_send_frame_status.get_null_idx()
 MAX_FRAME_BUFFERS = _test_send_frame_status.get_max_frame_buffers()
@@ -61,13 +62,11 @@ def test_video(fake_video_frames: VideoParams):
 
 def test_audio(fake_audio_data: AudioParams):
     fs = fake_audio_data.sample_rate
-    N = fake_audio_data.num_samples
     num_channels = fake_audio_data.num_channels
     num_segments = fake_audio_data.num_segments
     s_perseg = fake_audio_data.s_perseg
 
     samples = fake_audio_data.samples_3d
-    samples_flat = fake_audio_data.samples_2d
 
     af = AudioSendFrame()
     af.sample_rate = fs

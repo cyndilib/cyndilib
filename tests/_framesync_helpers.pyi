@@ -1,9 +1,7 @@
-from __future__ import annotations
 
 from cyndilib.audio_frame import AudioFrameSync
 from cyndilib.video_frame import VideoFrameSync
 from cyndilib.wrapper import *
-
 
 class BaseFrameSyncHelper:
 

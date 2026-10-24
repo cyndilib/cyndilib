@@ -5,7 +5,6 @@ import pytest
 from cyndilib import Router, RoutingMatrix
 
 
-
 def build_unique_name(request: pytest.FixtureRequest, suffix: str = '') -> str:
     mod_name = request.node.nodeid.split('::')[0].split('/')[-1].split('.')[0]
     test_name = request.node.nodeid.split('::')[-1]
@@ -76,7 +75,7 @@ def test_routing_matrix(request):
             with pytest.raises(KeyError):
                 matrix.add_router(Router(name))
 
-        assert set(router.name for router in matrix) == set(router_names)
+        assert {router.name for router in matrix} == set(router_names)
 
         for dest_name, source_name in zip(router_names, source_names):
             # When testing in CI, we can't depend on any sources present,

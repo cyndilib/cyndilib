@@ -1,7 +1,8 @@
 import time
+
 from cyndilib.finder import Finder
 from cyndilib.receiver import Receiver
-from cyndilib.wrapper.ndi_recv import RecvColorFormat, RecvBandwidth
+from cyndilib.wrapper.ndi_recv import RecvBandwidth, RecvColorFormat
 
 
 def main():
@@ -18,6 +19,7 @@ def main():
 
     source = source_names[0]
     source_obj = finder.get_source(source)
+    assert source_obj is not None, f"Source '{source}' not found"
     print(source_obj)
 
     receiver = Receiver(
@@ -30,7 +32,7 @@ def main():
     time.sleep(1.5)
 
     if not receiver.is_ptz_supported():
-        raise f"The NDI '{source}' does not indicate PTZ support."
+        raise RuntimeError(f"The NDI '{source}' does not indicate PTZ support.")
 
     ptz = receiver.ptz
 
@@ -51,12 +53,12 @@ def main():
     time.sleep(2)
 
     print("zoom in")
-    for _ in range(0, 100):
+    for _ in range(100):
         time.sleep(0.01)
         ptz.zoom(1)
 
     print("zoom out")
-    for _ in range(0, 100):
+    for _ in range(100):
         time.sleep(0.01)
         ptz.zoom(-0.5)
 
@@ -93,12 +95,12 @@ def main():
     time.sleep(5)
 
     print("continuously pan left")
-    for _ in range(0, 100):
+    for _ in range(100):
         time.sleep(0.05)
         ptz.pan(.5)
 
     print("continuously pan right")
-    for _ in range(0, 100):
+    for _ in range(100):
         time.sleep(0.05)
         ptz.pan(-.5)
 
@@ -107,12 +109,12 @@ def main():
     time.sleep(2)
 
     print("continuously tilt down")
-    for _ in range(0, 100):
+    for _ in range(100):
         time.sleep(0.05)
         ptz.tilt(-.5)
 
     print("continuously tilt up")
-    for _ in range(0, 100):
+    for _ in range(100):
         time.sleep(0.05)
         ptz.tilt(.5)
 
@@ -163,12 +165,12 @@ def main():
     time.sleep(2)
 
     print("decrease focus")
-    for _ in range(0, 100):
+    for _ in range(100):
         time.sleep(0.05)
         ptz.focus(-.5)
 
     print("increase focus")
-    for _ in range(0, 100):
+    for _ in range(100):
         time.sleep(0.05)
         ptz.focus(.5)
 

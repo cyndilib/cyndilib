@@ -1,23 +1,26 @@
 
 from kivy.app import App
+from kivy.clock import Clock, mainthread
 from kivy.graphics.texture import Texture
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.widget import Widget
-from kivy.uix.dropdown import DropDown
-from kivy.uix.button import Button
 from kivy.lang import Builder
 from kivy.properties import (
-    ObjectProperty, BooleanProperty, StringProperty,
-    NumericProperty, ListProperty, OptionProperty, AliasProperty,
+    AliasProperty,
+    BooleanProperty,
+    ListProperty,
+    NumericProperty,
+    ObjectProperty,
+    StringProperty,
 )
-from kivy.clock import Clock, mainthread
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.dropdown import DropDown
+from kivy.uix.widget import Widget
 
-from cyndilib.wrapper.ndi_recv import RecvColorFormat, RecvBandwidth
-from cyndilib.finder import Finder, Source
-from cyndilib.receiver import Receiver, ReceiveFrameType
-from cyndilib.video_frame import VideoFrameSync
 from cyndilib.audio_frame import AudioFrameSync
-from cyndilib.framesync import FrameSyncThread
+from cyndilib.finder import Finder
+from cyndilib.receiver import Receiver
+from cyndilib.video_frame import VideoFrameSync
+from cyndilib.wrapper.ndi_recv import RecvBandwidth, RecvColorFormat
 
 Builder.load_string('''
 <MainWidget>:

@@ -1,11 +1,13 @@
 from __future__ import annotations
-from typing import NamedTuple, Callable
+
 import os
-import pytest
+from collections.abc import Callable
 from fractions import Fraction
+from typing import NamedTuple
+
 import numpy as np
 import psutil
-
+import pytest
 from _test_video_frame import build_test_frames
 
 IS_CI_BUILD = 'true' in [os.environ.get(key) for key in ['CI', 'CODESPACES']]
@@ -137,7 +139,7 @@ def video_frame_rate(request) -> Fraction:
     if request.param == int(request.param):
         return Fraction(request.param, 1)
     else:
-        return Fraction(int(round(request.param)) * 1000, 1001)
+        return Fraction(round(request.param) * 1000, 1001)
 
 def get_available_mem():
     return psutil.virtual_memory().available

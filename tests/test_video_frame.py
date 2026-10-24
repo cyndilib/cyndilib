@@ -1,22 +1,29 @@
-import time
-import numpy as np
-import pytest
 from fractions import Fraction
 
-from cyndilib.video_frame import VideoFrame, VideoRecvFrame, VideoSendFrame, VideoFrameSync
-from cyndilib.wrapper import FourCC
-from _test_video_frame import (
-    build_test_frame, build_test_frames,
-    buffer_into_video_frame, video_frame_process_events,
-)
+import numpy as np
+import pytest
+from _framesync_helpers import VideoFrameSyncHelper
 from _test_send_frame_status import (
-    set_send_frame_sender_status, set_send_frame_send_complete,
-    check_video_send_frame, get_null_idx, get_max_frame_buffers,
+    check_video_send_frame,
+    get_max_frame_buffers,
+    get_null_idx,
+    set_send_frame_send_complete,
+    set_send_frame_sender_status,
 )
-from _framesync_helpers import (
-    VideoFrameSyncHelper
+from _test_video_frame import (
+    buffer_into_video_frame,
+    build_test_frame,
+    build_test_frames,
 )
 from conftest import VideoParams
+
+from cyndilib.video_frame import (
+    VideoFrame,
+    VideoFrameSync,
+    VideoRecvFrame,
+    VideoSendFrame,
+)
+from cyndilib.wrapper import FourCC
 
 MAX_FRAME_BUFFERS = get_max_frame_buffers()
 NULL_INDEX = get_null_idx()
@@ -44,17 +51,17 @@ def test_frame_builder():
     width, height = 640, 360
     num_frames = 160
 
-    a = arr_uint32 = build_test_frame(width, height, True, False, False)
-    b = arr_uint8_flat = build_test_frame(width, height, False, True, False)
-    c = arr_struct = build_test_frame(width, height, False, False, True)
-    d = arr_uint8_3d = build_test_frame(width, height, False, False, False)
+    a = build_test_frame(width, height, True, False, False)
+    b = build_test_frame(width, height, False, True, False)
+    c = build_test_frame(width, height, False, False, True)
+    d = build_test_frame(width, height, False, False, False)
 
     assert a.tobytes() == b.tobytes() == c.tobytes() == d.tobytes()
 
-    a = arr_uint32 = build_test_frames(width, height, num_frames, True, False, False)
-    b = arr_uint8_flat = build_test_frames(width, height, num_frames, False, True, False)
-    c = arr_struct = build_test_frames(width, height, num_frames, False, False, True)
-    d = arr_uint8_3d = build_test_frames(width, height, num_frames, False, False, False)
+    a = build_test_frames(width, height, num_frames, True, False, False)
+    b = build_test_frames(width, height, num_frames, False, True, False)
+    c = build_test_frames(width, height, num_frames, False, False, True)
+    d = build_test_frames(width, height, num_frames, False, False, False)
 
     x_inc = width // num_frames
     for i in range(num_frames):

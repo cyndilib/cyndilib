@@ -1,22 +1,20 @@
 from __future__ import annotations
-import pytest
+
 import threading
 import time
-from fractions import Fraction
 from functools import partial
+
+import _test_send_frame_status
+import _test_sender
 import numpy as np
-
-from cyndilib.wrapper.ndi_structs import FourCC
-from cyndilib.sender import Sender
-from cyndilib.video_frame import VideoSendFrame
-from cyndilib.audio_frame import AudioSendFrame
-from cyndilib.locks import RLock, Condition
-
+import pytest
 from conftest import IS_CI_BUILD, AudioParams, VideoParams
 
-import _test_sender
-import _test_audio_frame
-import _test_send_frame_status
+from cyndilib.audio_frame import AudioSendFrame
+from cyndilib.locks import Condition, RLock
+from cyndilib.sender import Sender
+from cyndilib.video_frame import VideoSendFrame
+from cyndilib.wrapper.ndi_structs import FourCC
 
 NULL_INDEX = _test_send_frame_status.get_null_idx()
 MAX_FRAME_BUFFERS = _test_send_frame_status.get_max_frame_buffers()
@@ -252,7 +250,7 @@ class SenderThread(threading.Thread):
     def num_frames(self) -> int:
         return self.get_num_frames()
 
-    def set_dependent_thread(self, oth_thread: 'SenderThread'):
+    def set_dependent_thread(self, oth_thread: SenderThread):
         if oth_thread is None:
             self.dependent_thread = None
         else:
@@ -346,8 +344,6 @@ def test_send_video_and_audio_threaded(request, fake_av_frames: tuple[VideoParam
     video_data, audio_data = fake_av_frames
 
     sender = setup_sender(request, video_data, audio_data)
-    vf = sender.video_frame
-    af = sender.audio_frame
 
     num_frame_repeats = 1
     num_full_repeats = 1

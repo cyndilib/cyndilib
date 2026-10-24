@@ -1,10 +1,9 @@
-from __future__ import annotations
+
+from cyndilib.send_frame_status import *
 
 from cyndilib.audio_frame import AudioSendFrame
-from cyndilib.send_frame_status import *
 from cyndilib.video_frame import VideoSendFrame
 from cyndilib.wrapper import *
-
 
 class BenchSender:
 

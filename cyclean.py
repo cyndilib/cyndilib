@@ -1,10 +1,10 @@
 #! /usr/bin/env python3
 
-import typing as tp
-import sys
-from pathlib import Path
-import shutil
 import argparse
+import shutil
+import sys
+import typing as tp
+from pathlib import Path
 
 BASE_PATH = Path(__file__).resolve().parent
 SRC_PATH = BASE_PATH / 'src'

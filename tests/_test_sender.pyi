@@ -1,11 +1,10 @@
-from __future__ import annotations
 
 import cython
 import numpy as np
 import numpy.typing as npt
+
 from cyndilib.sender import Sender
 from cyndilib.wrapper import *
-
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
