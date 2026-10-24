@@ -231,13 +231,19 @@ cdef class Finder:
     cpdef Source get_source(self, str name):
         """Get a :class:`Source` by its :attr:`~Source.name`
         """
-        return self.source_obj_map.get(name)
+        cdef Source source = self.source_obj_map.get(name)
+        if source is not None and source.valid:
+            return source
+        return None
 
     cdef Source _get_source_c_str(self, const char* s):
         """Get a :class:`Source` by its name as a C string
         """
         cdef cpp_string name = s
-        return self.source_obj_map.get(name.decode('UTF-8'))
+        cdef Source source = self.source_obj_map.get(name.decode('UTF-8'))
+        if source is not None and source.valid:
+            return source
+        return None
 
     # TODO: find a way around `except *` for this
     cdef NDIlib_source_t* _get_source_ptr(self, cpp_string name) except * nogil:
