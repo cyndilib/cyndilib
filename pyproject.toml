@@ -123,6 +123,10 @@ include = [
     "tests/**/*.py",
     "tests/**/*.pyi",
     "examples/**/*.py",
+    "build_tests.py",
+    "cyclean.py",
+    "sdkcopy.py",
+    "test_cibuildwheel.py",
 ]
 
 
