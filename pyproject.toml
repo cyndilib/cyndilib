@@ -129,7 +129,7 @@ environment = {CI= "true", CYNDILIB_BUILD_PARALLEL= "auto"}
 
 [tool.cibuildwheel.linux]
 before-all = [
-    "yum install -y avahi-libs",
+    "yum install -y --setopt=minrate=1M --setopt=timeout=30 avahi-libs",
     "uv export --frozen --no-emit-project --no-build --only-group test -o pylock.toml",
 ]
 
