@@ -82,7 +82,7 @@ def main():
     ptz.set_pan_and_tilt_values(0.0, 0.0)
     time.sleep(5)
 
-    print("pan to center, title to down")
+    print("pan to center, tilt to down")
     ptz.set_pan_and_tilt_values(0.0, -1.0)
     time.sleep(5)
 
@@ -104,7 +104,7 @@ def main():
         time.sleep(0.05)
         ptz.pan(-.5)
 
-    print("pan to center, title to middle")
+    print("pan to center, tilt to middle")
     ptz.set_pan_and_tilt_values(0.0, 0.0)
     time.sleep(2)
 
@@ -118,7 +118,7 @@ def main():
         time.sleep(0.05)
         ptz.tilt(.5)
 
-    print("pan to center, title to middle")
+    print("pan to center, tilt to middle")
     ptz.set_pan_and_tilt_values(0.0, 0.0)
     time.sleep(2)
 
@@ -148,7 +148,7 @@ def main():
     ptz.recall_preset(11, 0.0)
     time.sleep(6)
 
-    print("pan to center, title to middle")
+    print("pan to center, tilt to middle")
     ptz.set_pan_and_tilt_values(0.0, 0.0)
     time.sleep(2)
 
