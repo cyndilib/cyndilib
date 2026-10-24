@@ -218,8 +218,12 @@ cdef class Finder:
 
 
         """
+        cdef Source source
         with self.notify:
-            yield from self.source_obj_map.values()
+            for source in self.source_obj_map.values():
+                if not source.valid:
+                    continue
+                yield source
 
     def __iter__(self):
         yield from self.iter_sources()
