@@ -99,7 +99,7 @@ jobs:
 
       - name: Build wheels
         id: build_wheel
-        uses: pypa/cibuildwheel@b3395e271a35f73dad77f21802abe9b986dfe299 # v4.3.1
+        uses: pypa/cibuildwheel@f11181315571b24e4a3c67f1a828532793f2df55 # v4.3.2
         env:
           CIBW_BUILD: ${{ matrix.python-version }}-*
           CIBW_ARCHS: ${{ env.CIBW_ARCHS }}
@@ -132,4 +132,4 @@ jobs:
           merge-multiple: true
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # release/v1
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # release/v1
