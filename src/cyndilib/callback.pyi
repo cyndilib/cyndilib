@@ -1,7 +1,8 @@
 from collections.abc import Callable
-from typing import Any, TypeAlias
+from typing import Any, ParamSpec, TypeAlias
 
-_CallbackType: TypeAlias = Callable[[], Any]
+_P = ParamSpec("_P")
+_CallbackType: TypeAlias = Callable[_P, Any]
 
 class Callback:
     # __pyx_vtable__: ClassVar[PyCapsule] = ...

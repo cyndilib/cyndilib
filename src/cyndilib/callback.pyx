@@ -33,21 +33,31 @@ cdef class Callback:
         self.weak_cb = None
         return 0
 
-    cdef int trigger_callback(self) except -1:
+    cdef int trigger_callback(self, tuple args = None, dict kwargs = None) except -1:
         if not self.has_callback:
             return 0
+
+        cdef bint has_args = args is not None
+        cdef bint has_kwargs = kwargs is not None
 
         cdef object cb
         cdef bint is_alive
         cdef WeakMethod weak_cb = self.weak_cb
         if self.is_weakref:
-            is_alive = weak_cb.trigger_callback()
+            is_alive = weak_cb.trigger_callback(args, kwargs)
             if not is_alive:
                 self.weak_cb = None
                 self.has_callback = False
         else:
             cb = self.cb
-            cb()
+            if has_args and has_kwargs:
+                cb(*args, **kwargs)
+            elif has_args:
+                cb(*args)
+            elif has_kwargs:
+                cb(**kwargs)
+            else:
+                cb()
         return 0
 
 
@@ -63,7 +73,7 @@ cdef class WeakMethod:
         self.meth_type = type(meth)
         self.alive = True
 
-    cdef bint trigger_callback(self) except -1:
+    cdef bint trigger_callback(self, tuple args = None, dict kwargs = None) except -1:
         if not self.alive:
             return False
         cdef object obj = self.obj_ref()
@@ -74,6 +84,15 @@ cdef class WeakMethod:
         if func is None:
             self.alive = False
             return False
+        cdef bint has_args = args is not None
+        cdef bint has_kwargs = kwargs is not None
         cdef object meth = self.meth_type(func, obj)
-        meth()
+        if has_args and has_kwargs:
+            meth(*args, **kwargs)
+        elif has_args:
+            meth(*args)
+        elif has_kwargs:
+            meth(**kwargs)
+        else:
+            meth()
         return True

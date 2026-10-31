@@ -8,10 +8,10 @@ cdef class Callback:
 
     cdef int set_callback(self, object cb) except -1
     cdef int remove_callback(self) except -1
-    cdef int trigger_callback(self) except -1
+    cdef int trigger_callback(self, tuple args = *, dict kwargs = *) except -1
 
 cdef class WeakMethod:
     cdef object obj_ref, func_ref, meth_type
     cdef bint alive
 
-    cdef bint trigger_callback(self) except -1
+    cdef bint trigger_callback(self, tuple args = *, dict kwargs = *) except -1
