@@ -117,7 +117,7 @@ def parse_run_server_args() -> list[str]:
     args_out = []
     if args.bind:
         args_out.extend(['-bind', args.bind])
-    if args.port:
+    if args.port is not None:
         if not (0 <= args.port <= 65535):
             raise ValueError("Port number must be between 0 and 65535")
         args_out.extend(['-port', str(args.port)])
