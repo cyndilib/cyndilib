@@ -124,7 +124,9 @@ def parse_run_server_args() -> list[str]:
     if args.config:
         args_out.extend(['-config', str(args.config)])
     linux_platforms = (Platform.linux_i686, Platform.linux_x86_64, Platform.linux_aarch64)
-    if args.service and current_platform in linux_platforms:
+    if args.service:
+        if current_platform not in linux_platforms:
+            raise ValueError("Service mode is only supported on Linux/Unix platforms")
         args_out.append('-service')
     return args_out
 
