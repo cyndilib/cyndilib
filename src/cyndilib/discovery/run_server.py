@@ -5,6 +5,7 @@ Utilities for running the built-in :term:`Discovery Server`
 """
 from __future__ import annotations
 
+import argparse
 import enum
 import importlib.resources
 import platform
@@ -81,6 +82,7 @@ def get_run_server_path() -> Path:
     return bin_path / _platform_bin_map[plat]
 
 
+
 def run() -> None:
     """Run the discovery server as a subprocess
 
@@ -88,23 +90,108 @@ def run() -> None:
     displayed in the terminal.  The process will continue running until
     interrupted by the user (e.g., via :kbd:`Ctrl+C`).
 
-    .. tip::
 
-        This can be run directly by the following command:
+    Raises
+    ------
 
-        .. code-block:: console
+    DiscoveryServerUnavailableError
+        If the discovery server is unavailable for the current platform
 
-            cyndilib-discovery-server
 
-    Raises:
-        DiscoveryServerUnavailableError: If the discovery server is unavailable
-            for the current platform
+    .. program:: cyndilib-discovery-server
+
+    Usage
+    -----
+
+    .. code-block:: shell
+
+        cyndilib-discovery-server [-h] [-b BIND] [-p PORT] [-c CONFIG] [-s]
+
+    .. option:: -b <BIND>, --bind <BIND>
+
+        Set the IP address to bind to (default: 0.0.0.0).
+
+    .. option:: -p <PORT>, --port <PORT>
+
+        Set the port number to bind (0-65535, default: 5959).
+
+    .. option:: -c <CONFIG>, --config <CONFIG>
+
+        An alternative config file to get the IP and port on where the service will run.
+
+        An example of the JSON configuration file can be seen below:
+
+        .. code-block:: json
+
+            {
+                "binding": "127.0.0.1",
+                "port_no": 5959
+            }
+
+    .. option:: -s <SERVICE>, --service <SERVICE>
+
+        Run this in service mode (only for linux/unix).
+
+        This option allows the discovery server to run as a background service
+        utilizing ``systemd`` or other init systems available on the platform.
+
+
+    If the :option:`--config` option is specified, it will override both the
+    :option:`--bind` and :option:`--port` options.
+
+    If no :option:`--config` option is specified, the values for the
+    :option:`--bind` and :option:`--port` options will be used.
+    If no values are provided for these options, they will use the default values
+    or read from the following configuration files depending on the platform:
+
+    - Linux:
+        - ``/etc/ndi/ndi-discovery-service.v1.json``
+        - ``/usr/local/etc/ndi/ndi-discovery-service.v1.json``
+    - Windows:
+        - ``%PROGRAMDATA%\\NDI\\ndi-discovery-service.v1.json``
 
     """
+    parser = argparse.ArgumentParser(description="Run the discovery server")
+    parser.add_argument(
+        '-b', '--bind',
+        type=str,
+        help="Set the IP address to bind to (default: 0.0.0.0).",
+    )
+    parser.add_argument(
+        '-p', '--port',
+        type=int,
+        help="Set the port number to bind (0-65535, default: 5959).",
+    )
+    parser.add_argument(
+        '-c', '--config',
+        type=Path,
+        help="An alternative config file to get the IP and port on where the service will run.",
+    )
+    parser.add_argument(
+        '-s', '--service',
+        action='store_true',
+        help="Run this in service mode (only for linux/unix).",
+    )
+    args = parser.parse_args()
+    current_platform = Platform.current()
+    args_out = []
+    if args.bind:
+        args_out.extend(['-bind', args.bind])
+    if args.port is not None:
+        if not (0 <= args.port <= 65535):
+            raise ValueError("Port number must be between 0 and 65535")
+        args_out.extend(['-port', str(args.port)])
+    if args.config:
+        args_out.extend(['-config', str(args.config)])
+    linux_platforms = (Platform.linux_i686, Platform.linux_x86_64, Platform.linux_aarch64)
+    if args.service:
+        if current_platform not in linux_platforms:
+            raise ValueError("Service mode is only supported on Linux/Unix platforms")
+        args_out.append('-service')
     path = get_run_server_path()
     creationflags = 0 if sys.platform != "win32" else subprocess.CREATE_NEW_PROCESS_GROUP
 
-    proc = subprocess.Popen([str(path)], creationflags=creationflags)
+    proc = subprocess.Popen([str(path)] + args_out, creationflags=creationflags)
     try:
         proc.poll()
         if proc.returncode is not None:
