@@ -83,54 +83,6 @@ def get_run_server_path() -> Path:
 
 
 
-def parse_run_server_args() -> list[str]:
-    """Parse command-line arguments for running the discovery server
-
-    The options here correspond to that of the discovery server command-line interface,
-    but match standard CLI argument conventions
-    (e.g., using '-' for short options and '--' for long options).
-
-    """
-    parser = argparse.ArgumentParser(description="Run the discovery server")
-    parser.add_argument(
-        '-b', '--bind',
-        type=str,
-        help="Set the IP address to bind to (default: 0.0.0.0).",
-    )
-    parser.add_argument(
-        '-p', '--port',
-        type=int,
-        help="Set the port number to bind (0-65535, default: 5959).",
-    )
-    parser.add_argument(
-        '-c', '--config',
-        type=Path,
-        help="An alternative config file to get the IP and port on where the service will run.",
-    )
-    parser.add_argument(
-        '-s', '--service',
-        action='store_true',
-        help="Run this in service mode (only for linux/unix).",
-    )
-    args = parser.parse_args()
-    current_platform = Platform.current()
-    args_out = []
-    if args.bind:
-        args_out.extend(['-bind', args.bind])
-    if args.port is not None:
-        if not (0 <= args.port <= 65535):
-            raise ValueError("Port number must be between 0 and 65535")
-        args_out.extend(['-port', str(args.port)])
-    if args.config:
-        args_out.extend(['-config', str(args.config)])
-    linux_platforms = (Platform.linux_i686, Platform.linux_x86_64, Platform.linux_aarch64)
-    if args.service:
-        if current_platform not in linux_platforms:
-            raise ValueError("Service mode is only supported on Linux/Unix platforms")
-        args_out.append('-service')
-    return args_out
-
-
 def run() -> None:
     """Run the discovery server as a subprocess
 
@@ -199,11 +151,47 @@ def run() -> None:
         - ``%PROGRAMDATA%\\NDI\\ndi-discovery-service.v1.json``
 
     """
+    parser = argparse.ArgumentParser(description="Run the discovery server")
+    parser.add_argument(
+        '-b', '--bind',
+        type=str,
+        help="Set the IP address to bind to (default: 0.0.0.0).",
+    )
+    parser.add_argument(
+        '-p', '--port',
+        type=int,
+        help="Set the port number to bind (0-65535, default: 5959).",
+    )
+    parser.add_argument(
+        '-c', '--config',
+        type=Path,
+        help="An alternative config file to get the IP and port on where the service will run.",
+    )
+    parser.add_argument(
+        '-s', '--service',
+        action='store_true',
+        help="Run this in service mode (only for linux/unix).",
+    )
+    args = parser.parse_args()
+    current_platform = Platform.current()
+    args_out = []
+    if args.bind:
+        args_out.extend(['-bind', args.bind])
+    if args.port is not None:
+        if not (0 <= args.port <= 65535):
+            raise ValueError("Port number must be between 0 and 65535")
+        args_out.extend(['-port', str(args.port)])
+    if args.config:
+        args_out.extend(['-config', str(args.config)])
+    linux_platforms = (Platform.linux_i686, Platform.linux_x86_64, Platform.linux_aarch64)
+    if args.service:
+        if current_platform not in linux_platforms:
+            raise ValueError("Service mode is only supported on Linux/Unix platforms")
+        args_out.append('-service')
     path = get_run_server_path()
-    args = parse_run_server_args()
     creationflags = 0 if sys.platform != "win32" else subprocess.CREATE_NEW_PROCESS_GROUP
 
-    proc = subprocess.Popen([str(path)] + args, creationflags=creationflags)
+    proc = subprocess.Popen([str(path)] + args_out, creationflags=creationflags)
     try:
         proc.poll()
         if proc.returncode is not None:
