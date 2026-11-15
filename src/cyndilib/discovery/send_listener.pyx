@@ -507,6 +507,7 @@ cdef class SendListener:
             discovered_sender = self._discovered_senders[sender_uuid_bytes]
             # discovered_sender._unsubscribe_events()
             self._unsubscribe_events(sender_uuid_bytes)
+            events.append(("removed", discovered_sender))
             # discovered_sender.parent = None
             # del self._discovered_senders[sender_uuid_bytes]
             any_changed = True
