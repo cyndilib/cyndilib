@@ -173,6 +173,13 @@ cdef class SendListener:
         Arguments:
 
             cb (SenderCallback): The function to be called when a sender event occurs.
+
+
+        .. warning::
+            The :meth:`close` method should **never** be called inside of this callback.
+
+            This could lead to undefined behavior.
+
         """
         self._sender_callback.set_callback(cb)
 
@@ -190,6 +197,11 @@ cdef class SendListener:
         Arguments:
 
             cb (SenderEventCallback): The function to be called when a listener event occurs.
+
+        .. warning::
+            The :meth:`close` method should **never** be called inside of this callback.
+
+            This could lead to undefined behavior.
 
         """
         self._event_callback.set_callback(cb)

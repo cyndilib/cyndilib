@@ -195,6 +195,12 @@ cdef class RecvListener:
         Arguments:
             cb (ReceiverCallback): The function to be called when a
                 receiver event occurs.
+
+        .. warning::
+            The :meth:`close` method should **never** be called inside of this callback.
+
+            This could lead to undefined behavior.
+
         """
         self._receiver_callback.set_callback(cb)
 
@@ -212,6 +218,12 @@ cdef class RecvListener:
         Arguments:
             cb (ReceiverEventCallback): The function to be called
                 when a listener event occurs.
+
+
+        .. warning::
+            The :meth:`close` method should **never** be called inside of this callback.
+
+            This could lead to undefined behavior.
 
         """
         self._event_callback.set_callback(cb)
