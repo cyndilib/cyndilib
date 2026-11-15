@@ -85,6 +85,17 @@ Glossary
         `Receive Discovery Monitor and Control`_ and
         `Send Discovery and Advertiser`_ documentation.
 
+    Discovery API
+        The API's providing discovery and monitoring of |NDI| senders
+        and receivers.
+
+        This includes:
+
+        - The :term:`Send Advertiser` API
+        - The :term:`Send Listener` API
+        - The :term:`Receive Advertiser` API
+        - The :term:`Receive Listener` API
+
     Send Advertiser
         Provides the API for advertising |NDI| senders within the :term:`Discovery Server`,
         ensuring they can be discovered by other systems.
