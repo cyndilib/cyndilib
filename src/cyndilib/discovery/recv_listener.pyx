@@ -509,10 +509,10 @@ cdef class RecvListener:
                 if changed:
                     discovered_receiver = new_discovered_receiver
                     any_changed = True
-                    self._trigger_receiver_callback("updated", discovered_receiver)
+                    events.append(("updated", discovered_receiver))
             else:
                 discovered_receiver = _DiscoveredReceiver_from_ptr(&p_receivers[i])
-                self._trigger_receiver_callback("added", discovered_receiver)
+                events.append(("added", discovered_receiver))
                 if self.auto_subscribe:
                     self._subscribe_events(receiver_uuid_bytes)
                 any_changed = True
@@ -524,10 +524,12 @@ cdef class RecvListener:
             self._unsubscribe_events(receiver_uuid_bytes)
             # discovered_receiver.parent = None
             # del self._discovered_receivers[receiver_uuid_bytes]
-            self._trigger_receiver_callback("removed", discovered_receiver)
+            events.append(("removed", discovered_receiver))
             any_changed = True
         self._discovered_receivers.clear()
         self._discovered_receivers.update(discovered_receiver_dict)
+        for event_type, discovered_receiver in events:
+            self._trigger_receiver_callback(event_type, discovered_receiver)
         return any_changed
 
     cdef bint _wait_for_receiver_change(self, uint32_t timeout_ms) except -1 nogil:

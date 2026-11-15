@@ -491,13 +491,13 @@ cdef class SendListener:
                     discovered_sender = new_discovered_sender
                     # self._discovered_senders[sender_uuid_bytes] = discovered_sender
                     any_changed = True
-                    self._trigger_sender_callback("updated", discovered_sender)
+                    events.append(("updated", discovered_sender))
             else:
                 # discovered_sender = DiscoveredSender._from_ptr(&ndi_sender)
                 discovered_sender = _DiscoveredSender_from_ptr(&ndi_sender)
                 # discovered_sender.parent = self
                 # self._discovered_senders[sender_uuid_bytes] = discovered_sender
-                self._trigger_sender_callback("added", discovered_sender)
+                events.append(("added", discovered_sender))
                 if self.auto_subscribe:
                     # discovered_sender._subscribe_events()
                     self._subscribe_events(sender_uuid_bytes)
@@ -510,11 +510,12 @@ cdef class SendListener:
             self._unsubscribe_events(sender_uuid_bytes)
             # discovered_sender.parent = None
             # del self._discovered_senders[sender_uuid_bytes]
-            self._trigger_sender_callback("removed", discovered_sender)
             any_changed = True
         # if any_changed:
         self._discovered_senders.clear()
         self._discovered_senders.update(discovered_sender_dict)
+        for event_type, discovered_sender in events:
+            self._trigger_sender_callback(event_type, discovered_sender)
         return any_changed
 
     # cdef bint _wait_for_senders(self, uint32_t timeout_ms) except -1 nogil:
