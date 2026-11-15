@@ -557,18 +557,21 @@ cdef class RecvListener:
             )
         if p_events == NULL:
             return results
+        cdef list events = []
         cdef object event
         cdef uint32_t i
         try:
             for i in range(num_events):
                 event = _ListenerEvent_from_ptr(&p_events[i])
                 results.append(event)
-                self._trigger_event_callback(event)
+                events.append(event)
         finally:
             # Important!
             # `NDIlib_recv_listener_free_events` must be called after
             # each call to `NDIlib_send_listener_get_events`.
             NDIlib_recv_listener_free_events(self._instance, p_events)
+        for event in events:
+            self._trigger_event_callback(event)
         return results
 
     cdef _trigger_receiver_callback(self, str event_type, object discovered_receiver):
