@@ -69,6 +69,10 @@ ListenerEventName = Literal["added", "removed", "updated"]
 SenderCallback = Callable[[ListenerEventName, DiscoveredSender], None]
 """Callback signature for changes in discovered senders
 
+This is used when a sender is added, removed, or updated
+by :meth:`.SendListener.get_senders` (if the callback is set via
+:meth:`.SendListener.set_sender_callback`).
+
 :param event_name: The name of the sender event.
 :type event_name: ListenerEventName
 :param sender: The discovered sender associated with the event.
@@ -78,6 +82,10 @@ SenderCallback = Callable[[ListenerEventName, DiscoveredSender], None]
 
 ReceiverCallback = Callable[[ListenerEventName, DiscoveredReceiver], None]
 """Callback signature for changes in discovered receivers
+
+This is used when a receiver is added, removed, or updated
+by :meth:`.RecvListener.get_receivers` (if the callback is set via
+:meth:`.RecvListener.set_receiver_callback`).
 
 :param event_name: The name of the receiver event.
 :type event_name: ListenerEventName
@@ -121,10 +129,6 @@ SenderEventCallback = Callable[[SendListenerEvent], None]
 """Callback signature for events received from
 :class:`DiscoveredSenders <DiscoveredSender>`
 
-This is used when a sender is added, removed, or updated
-by :meth:`.SendListener.get_senders` (if the callback is set via
-:meth:`.SendListener.set_sender_callback`).
-
 :param event: The event received from the listener.
 :type event: SendListenerEvent
 """
@@ -132,10 +136,6 @@ by :meth:`.SendListener.get_senders` (if the callback is set via
 ReceiverEventCallback = Callable[[ReceiveListenerEvent], None]
 """Callback signature for events received from
 :class:`DiscoveredReceivers <DiscoveredReceiver>`
-
-This is used when a receiver is added, removed, or updated
-by :meth:`.RecvListener.get_receivers` (if the callback is set via
-:meth:`.RecvListener.set_receiver_callback`).
 
 :param event: The event received from the listener.
 :type event: ReceiveListenerEvent
