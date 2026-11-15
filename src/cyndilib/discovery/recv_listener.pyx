@@ -78,8 +78,7 @@ cdef class RecvListener:
 
     Arguments:
         url_address (str | None): The URL address to use for the listener.
-            Multiple addresses may be specified, separated by commas.
-            Port numbers may also be specified using the format ``"address:port"``.
+            Port numbers may be specified using the format ``"address:port"``.
             If no port is specified, the default port of 5959 will be used.
             If None (the default), the URL address from the
             :term:`Discovery Configuration` will be used.
