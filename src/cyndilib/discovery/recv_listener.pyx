@@ -547,13 +547,19 @@ cdef class RecvListener:
         return 0
 
     cdef list _get_events(self, uint32_t timeout_ms):
-        self._ensure_open()
+        # Instead of `self._ensure_open()`, get a local instance pointer
+        # and check its state.
+        # This is to avoid calling `NDIlib_recv_listener_free_events`
+        # with a possibly NULL instance pointer.
+        cdef NDIlib_recv_listener_instance_t instance = self._instance
+        if instance == NULL:
+            raise InvalidStateError("Recv listener is not open")
         cdef list results = []
         cdef uint32_t num_events = 0
         cdef const NDIlib_listener_event* p_events
         with nogil:
             p_events = NDIlib_recv_listener_get_events(
-                self._instance, &num_events, timeout_ms
+                instance, &num_events, timeout_ms
             )
         if p_events == NULL:
             return results
@@ -568,8 +574,8 @@ cdef class RecvListener:
         finally:
             # Important!
             # `NDIlib_recv_listener_free_events` must be called after
-            # each call to `NDIlib_send_listener_get_events`.
-            NDIlib_recv_listener_free_events(self._instance, p_events)
+            # each call to `NDIlib_recv_listener_get_events`.
+            NDIlib_recv_listener_free_events(instance, p_events)
         for event in events:
             self._trigger_event_callback(event)
         return results
