@@ -458,20 +458,26 @@ cdef class SendListener:
         cdef const NDIlib_sender_t* p_senders = NDIlib_send_listener_get_senders(
             self._instance, &p_num_senders
         )
-        if p_senders == NULL:
-            return False
-        if p_num_senders == 0:
-            return False
+        cdef bint any_changed = False
+        cdef object discovered_sender
+        events: list[tuple[str, DiscoveredSender]] = []
+        if p_senders == NULL or p_num_senders == 0:
+            # If there are no senders, clear all existing and trigger removal callbacks
+            for discovered_sender in self._discovered_senders.values():
+                events.append(("removed", discovered_sender))
+                any_changed = True
+            self._discovered_senders.clear()
+            for event_type, discovered_sender in events:
+                self._trigger_sender_callback(event_type, discovered_sender)
+            return any_changed
         cdef uint32_t i
         cdef NDIlib_sender_t ndi_sender
         cdef dict discovered_sender_dict = {}
-        cdef object discovered_sender
         cdef object new_discovered_sender
         # cdef cpp_string sender_uuid_cpp
         cdef bytes sender_uuid_bytes
         cdef bint existing = False
         cdef bint changed = False
-        cdef bint any_changed = False
         cdef set previous_uuids_bytes = set(self._discovered_senders.keys())
         for i in range(p_num_senders):
             ndi_sender = p_senders[i]

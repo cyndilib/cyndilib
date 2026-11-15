@@ -480,16 +480,24 @@ cdef class RecvListener:
         cdef const NDIlib_receiver_t* p_receivers = NDIlib_recv_listener_get_receivers(
             self._instance, &p_num_receivers
         )
+        cdef bint any_changed = False
+        cdef object discovered_receiver
+        events: list[tuple[str, DiscoveredReceiver]] = []
         if p_receivers == NULL or p_num_receivers == 0:
-            return False
+            # If there are no receivers, clear all and trigger removed callbacks
+            for discovered_receiver in self._discovered_receivers.values():
+                events.append(("removed", discovered_receiver))
+                any_changed = True
+            self._discovered_receivers.clear()
+            for event_type, discovered_receiver in events:
+                self._trigger_receiver_callback(event_type, discovered_receiver)
+            return any_changed
         cdef uint32_t i
         cdef dict discovered_receiver_dict = {}
-        cdef object discovered_receiver
         cdef object new_discovered_receiver
         cdef bytes receiver_uuid_bytes
         cdef bint existing = False
         cdef bint changed = False
-        cdef bint any_changed = False
         cdef set previous_uuids_bytes = set(self._discovered_receivers.keys())
         for i in range(p_num_receivers):
             receiver_uuid_bytes = p_receivers[i].p_uuid
