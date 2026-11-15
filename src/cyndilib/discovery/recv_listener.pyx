@@ -533,7 +533,8 @@ cdef class RecvListener:
 
     cdef bint _wait_for_receiver_change(self, uint32_t timeout_ms) except -1 nogil:
         self._ensure_open()
-        return NDIlib_recv_listener_wait_for_receivers(self._instance, timeout_ms)
+        with nogil:
+            return NDIlib_recv_listener_wait_for_receivers(self._instance, timeout_ms)
 
     cdef int _subscribe_events(self, const char* sender_uuid) except -1 nogil:
         self._ensure_open()
@@ -549,9 +550,11 @@ cdef class RecvListener:
         self._ensure_open()
         cdef list results = []
         cdef uint32_t num_events = 0
-        cdef const NDIlib_listener_event* p_events = NDIlib_recv_listener_get_events(
-            self._instance, &num_events, timeout_ms
-        )
+        cdef const NDIlib_listener_event* p_events
+        with nogil:
+            p_events = NDIlib_recv_listener_get_events(
+                self._instance, &num_events, timeout_ms
+            )
         if p_events == NULL:
             return results
         cdef object event

@@ -523,7 +523,8 @@ cdef class SendListener:
 
     cdef bint _wait_for_sender_change(self, uint32_t timeout_ms) except -1 nogil:
         self._ensure_open()
-        return NDIlib_send_listener_wait_for_senders(self._instance, timeout_ms)
+        with nogil:
+            return NDIlib_send_listener_wait_for_senders(self._instance, timeout_ms)
 
     cdef int _subscribe_events(self, const char* sender_uuid) except -1 nogil:
         self._ensure_open()
@@ -539,9 +540,11 @@ cdef class SendListener:
         self._ensure_open()
         cdef list results = []
         cdef uint32_t num_events = 0
-        cdef const NDIlib_send_listener_event* p_events = NDIlib_send_listener_get_events(
-            self._instance, &num_events, timeout_ms
-        )
+        cdef const NDIlib_send_listener_event* p_events
+        with nogil:
+            p_events = NDIlib_send_listener_get_events(
+                self._instance, &num_events, timeout_ms
+            )
         if p_events == NULL:
             return results
         cdef object event
