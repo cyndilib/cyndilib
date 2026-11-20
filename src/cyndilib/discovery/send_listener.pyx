@@ -115,8 +115,8 @@ cdef class SendListener:
             self._use_default_url_address = False
             self._url_address_bytes = url_address.encode('utf-8')
             self._create_settings.p_url_address = self._url_address_bytes
-        self._discovered_senders = {}
-        self._sender_callback = Callback()
+        self._discovered_peers = {}
+        self._peer_callback = Callback()
         self._event_callback = Callback()
         self.auto_subscribe = auto_subscribe
 
@@ -181,12 +181,12 @@ cdef class SendListener:
             This could lead to undefined behavior.
 
         """
-        self._sender_callback.set_callback(cb)
+        self._peer_callback.set_callback(cb)
 
     def remove_sender_callback(self) -> None:
         """Remove the callback previously set through :meth:`set_sender_callback`
         """
-        self._sender_callback.remove_callback()
+        self._peer_callback.remove_callback()
 
     def set_event_callback(self, cb: SenderEventCallback) -> None:
         """Set the callback for listener events
@@ -243,8 +243,8 @@ cdef class SendListener:
         Raises:
             InvalidStateError: If the listener is not open.
         """
-        changed = self._get_senders()
-        return list(self._discovered_senders.values()), changed
+        changed = self._get_peers()
+        return list(self._discovered_peers.values()), changed
 
     def wait_for_sender_change(self, float timeout) -> bool:
         """Wait for a change in the list of discovered senders
@@ -265,7 +265,7 @@ cdef class SendListener:
         if timeout < 0:
             raise ValueError("Timeout must be non-negative")
         cdef uint32_t timeout_ms = round(timeout * 1000)
-        return self._wait_for_sender_change(timeout_ms)
+        return self._wait_for_peer_change(timeout_ms)
 
     def get_events(self, float timeout) -> list[tuple[DiscoveredSender, SendListenerEvent]]:
         """Get the list of listener events within the specified timeout
@@ -304,8 +304,8 @@ cdef class SendListener:
         cdef object event
         result = []
         for event in events:
-            if event.uuid in self._discovered_senders:
-                sender = self._discovered_senders[event.uuid]
+            if event.uuid in self._discovered_peers:
+                sender = self._discovered_peers[event.uuid]
                 result.append((sender, event))
         return result
 
@@ -326,7 +326,7 @@ cdef class SendListener:
             uuid_bytes = uuid.encode('utf-8')
         else:
             uuid_bytes = uuid
-        return self._discovered_senders.get(uuid_bytes)
+        return self._discovered_peers.get(uuid_bytes)
 
     def get(
         self,
@@ -349,7 +349,7 @@ cdef class SendListener:
             uuid_bytes = uuid.encode('utf-8')
         else:
             uuid_bytes = uuid
-        return self._discovered_senders.get(uuid_bytes, default)
+        return self._discovered_peers.get(uuid_bytes, default)
 
     def subscribe(self, uuid: bytes) -> None:
         """Subscribe to events from the sender with the given UUID
@@ -380,18 +380,18 @@ cdef class SendListener:
     def keys(self) -> KeysView[bytes]:
         """Get a view of the discovered sender :attr:`UUID's <.DiscoveredSender.uuid>`
         """
-        return self._discovered_senders.copy().keys()
+        return self._discovered_peers.copy().keys()
 
     def values(self) -> ValuesView[DiscoveredSender]:
         """Get a view of the :class:`.DiscoveredSender` instances
         """
-        return self._discovered_senders.copy().values()
+        return self._discovered_peers.copy().values()
 
     def items(self) -> ItemsView[bytes, DiscoveredSender]:
         """Get a view of the discovered sender :attr:`UUID's <.DiscoveredSender.uuid>`
         and their corresponding :class:`.DiscoveredSender` instances
         """
-        return self._discovered_senders.copy().items()
+        return self._discovered_peers.copy().items()
 
     def __contains__(self, uuid: str | bytes) -> bool:
         cdef bytes uuid_bytes
@@ -399,7 +399,7 @@ cdef class SendListener:
             uuid_bytes = uuid.encode('utf-8')
         else:
             uuid_bytes = uuid
-        return uuid_bytes in self._discovered_senders
+        return uuid_bytes in self._discovered_peers
 
     def __getitem__(self, uuid: str | bytes) -> DiscoveredSender:
         cdef bytes uuid_bytes
@@ -407,13 +407,13 @@ cdef class SendListener:
             uuid_bytes = uuid.encode('utf-8')
         else:
             uuid_bytes = uuid
-        return self._discovered_senders[uuid_bytes]
+        return self._discovered_peers[uuid_bytes]
 
     def __iter__(self) -> Iterator[DiscoveredSender]:
-        yield from self._discovered_senders.copy().values()
+        yield from self._discovered_peers.copy().values()
 
     def __len__(self) -> int:
-        return len(self._discovered_senders)
+        return len(self._discovered_peers)
 
     def __enter__(self) -> Self:
         self._open()
@@ -425,7 +425,7 @@ cdef class SendListener:
     cdef int _open(self) except -1:
         if self._instance != NULL:
             raise InvalidStateError("Send listener is already open")
-        self._discovered_senders.clear()
+        self._discovered_peers.clear()
         if self._use_default_url_address:
             self._instance = NDIlib_send_listener_create()
         else:
@@ -439,7 +439,7 @@ cdef class SendListener:
         self._instance = NULL
         if instance != NULL:
             NDIlib_send_listener_destroy(instance)
-        self._discovered_senders.clear()
+        self._discovered_peers.clear()
         return 0
 
     cdef bint _is_connected(self) except -1 nogil:
@@ -461,76 +461,76 @@ cdef class SendListener:
             return cpp_string()
         return cpp_string(server_url)
 
-    cdef bint _get_senders(self) except -1:
+    cdef bint _get_peers(self) except -1:
         self._ensure_open()
-        cdef uint32_t p_num_senders = 0
-        cdef const NDIlib_sender_t* p_senders = NDIlib_send_listener_get_senders(
-            self._instance, &p_num_senders
+        cdef uint32_t p_num_peers = 0
+        cdef const NDIlib_sender_t* p_peers = NDIlib_send_listener_get_senders(
+            self._instance, &p_num_peers
         )
         cdef bint any_changed = False
-        cdef object discovered_sender
+        cdef object discovered_peer
         events: list[tuple[str, DiscoveredSender]] = []
-        if p_senders == NULL or p_num_senders == 0:
+        if p_peers == NULL or p_num_peers == 0:
             # If there are no senders, clear all existing and trigger removal callbacks
-            for discovered_sender in self._discovered_senders.values():
-                events.append(("removed", discovered_sender))
+            for discovered_peer in self._discovered_peers.values():
+                events.append(("removed", discovered_peer))
                 any_changed = True
-            self._discovered_senders.clear()
-            for event_type, discovered_sender in events:
-                self._trigger_sender_callback(event_type, discovered_sender)
+            self._discovered_peers.clear()
+            for event_type, discovered_peer in events:
+                self._trigger_peer_callback(event_type, discovered_peer)
             return any_changed
         cdef uint32_t i
-        cdef NDIlib_sender_t ndi_sender
-        cdef dict discovered_sender_dict = {}
-        cdef object new_discovered_sender
-        cdef bytes sender_uuid_bytes
+        cdef NDIlib_sender_t ndi_peer
+        cdef dict discovered_peer_dict = {}
+        cdef object new_discovered_peer
+        cdef bytes peer_uuid_bytes
         cdef bint existing = False
         cdef bint changed = False
-        cdef set previous_uuids_bytes = set(self._discovered_senders.keys())
-        for i in range(p_num_senders):
-            ndi_sender = p_senders[i]
-            sender_uuid_bytes = ndi_sender.p_uuid
-            existing = sender_uuid_bytes in previous_uuids_bytes
+        cdef set previous_uuids_bytes = set(self._discovered_peers.keys())
+        for i in range(p_num_peers):
+            ndi_peer = p_peers[i]
+            peer_uuid_bytes = ndi_peer.p_uuid
+            existing = peer_uuid_bytes in previous_uuids_bytes
             if existing:
-                discovered_sender = self._discovered_senders[sender_uuid_bytes]
-                new_discovered_sender = _DiscoveredSender_from_ptr(&ndi_sender)
-                changed = discovered_sender != new_discovered_sender
+                discovered_peer = self._discovered_peers[peer_uuid_bytes]
+                new_discovered_peer = _DiscoveredSender_from_ptr(&ndi_peer)
+                changed = discovered_peer != new_discovered_peer
                 if changed:
-                    discovered_sender = new_discovered_sender
+                    discovered_peer = new_discovered_peer
                     any_changed = True
-                    events.append(("updated", discovered_sender))
+                    events.append(("updated", discovered_peer))
             else:
-                discovered_sender = _DiscoveredSender_from_ptr(&ndi_sender)
-                events.append(("added", discovered_sender))
+                discovered_peer = _DiscoveredSender_from_ptr(&ndi_peer)
+                events.append(("added", discovered_peer))
                 if self.auto_subscribe:
-                    self._subscribe_events(sender_uuid_bytes)
+                    self._subscribe_events(peer_uuid_bytes)
                 any_changed = True
-            discovered_sender_dict[sender_uuid_bytes] = discovered_sender
-            previous_uuids_bytes.discard(sender_uuid_bytes)
-        for sender_uuid_bytes in previous_uuids_bytes:
-            discovered_sender = self._discovered_senders[sender_uuid_bytes]
-            self._unsubscribe_events(sender_uuid_bytes)
-            events.append(("removed", discovered_sender))
+            discovered_peer_dict[peer_uuid_bytes] = discovered_peer
+            previous_uuids_bytes.discard(peer_uuid_bytes)
+        for peer_uuid_bytes in previous_uuids_bytes:
+            discovered_peer = self._discovered_peers[peer_uuid_bytes]
+            self._unsubscribe_events(peer_uuid_bytes)
+            events.append(("removed", discovered_peer))
             any_changed = True
-        self._discovered_senders.clear()
-        self._discovered_senders.update(discovered_sender_dict)
-        for event_type, discovered_sender in events:
-            self._trigger_sender_callback(event_type, discovered_sender)
+        self._discovered_peers.clear()
+        self._discovered_peers.update(discovered_peer_dict)
+        for event_type, discovered_peer in events:
+            self._trigger_peer_callback(event_type, discovered_peer)
         return any_changed
 
-    cdef bint _wait_for_sender_change(self, uint32_t timeout_ms) except -1 nogil:
+    cdef bint _wait_for_peer_change(self, uint32_t timeout_ms) except -1 nogil:
         self._ensure_open()
         with nogil:
             return NDIlib_send_listener_wait_for_senders(self._instance, timeout_ms)
 
-    cdef int _subscribe_events(self, const char* sender_uuid) except -1 nogil:
+    cdef int _subscribe_events(self, const char* peer_uuid) except -1 nogil:
         self._ensure_open()
-        NDIlib_send_listener_subscribe_events(self._instance, sender_uuid)
+        NDIlib_send_listener_subscribe_events(self._instance, peer_uuid)
         return 0
 
-    cdef int _unsubscribe_events(self, const char* sender_uuid) except -1 nogil:
+    cdef int _unsubscribe_events(self, const char* peer_uuid) except -1 nogil:
         self._ensure_open()
-        NDIlib_send_listener_unsubscribe_events(self._instance, sender_uuid)
+        NDIlib_send_listener_unsubscribe_events(self._instance, peer_uuid)
         return 0
 
     cdef list _get_events(self, uint32_t timeout_ms):
@@ -567,9 +567,9 @@ cdef class SendListener:
             self._trigger_event_callback(event)
         return results
 
-    cdef _trigger_sender_callback(self, str event_type, object discovered_sender):
-        cdef tuple callback_args = (event_type, discovered_sender)
-        self._sender_callback.trigger_callback(callback_args)
+    cdef _trigger_peer_callback(self, str event_type, object discovered_peer):
+        cdef tuple callback_args = (event_type, discovered_peer)
+        self._peer_callback.trigger_callback(callback_args)
         return 0
 
     cdef _trigger_event_callback(self, object event):

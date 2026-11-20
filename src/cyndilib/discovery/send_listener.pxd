@@ -34,8 +34,8 @@ cdef class SendListener:
     cdef bytes _url_address_bytes
     cdef bint _use_default_url_address
     cdef readonly bint auto_subscribe
-    cdef dict _discovered_senders
-    cdef Callback _sender_callback
+    cdef dict _discovered_peers
+    cdef Callback _peer_callback
     cdef Callback _event_callback
 
     cdef int _open(self) except -1
@@ -45,8 +45,8 @@ cdef class SendListener:
     cdef cpp_string _get_url_address(self)
     cdef bint _get_senders(self) except -1
     cdef bint _wait_for_sender_change(self, uint32_t timeout_ms) except -1 nogil
-    cdef int _subscribe_events(self, const char* sender_uuid) except -1 nogil
-    cdef int _unsubscribe_events(self, const char* sender_uuid) except -1 nogil
+    cdef int _subscribe_events(self, const char* peer_uuid) except -1 nogil
+    cdef int _unsubscribe_events(self, const char* peer_uuid) except -1 nogil
     cdef list _get_events(self, uint32_t timeout_ms)
-    cdef _trigger_sender_callback(self, str event_type, object discovered_sender)
+    cdef _trigger_peer_callback(self, str event_type, object discovered_peer)
     cdef _trigger_event_callback(self, object event)

@@ -138,8 +138,8 @@ cdef class RecvListener:
             self._url_address_bytes = url_address.encode('utf-8')
             self._create_settings.p_url_address = self._url_address_bytes
         self.auto_subscribe = auto_subscribe
-        self._discovered_receivers = {}
-        self._receiver_callback = Callback()
+        self._discovered_peers = {}
+        self._peer_callback = Callback()
         self._event_callback = Callback()
 
     def __dealloc__(self):
@@ -202,12 +202,12 @@ cdef class RecvListener:
             This could lead to undefined behavior.
 
         """
-        self._receiver_callback.set_callback(cb)
+        self._peer_callback.set_callback(cb)
 
     def remove_receiver_callback(self) -> None:
         """Remove the callback previously set through :meth:`set_receiver_callback`
         """
-        self._receiver_callback.remove_callback()
+        self._peer_callback.remove_callback()
 
     def set_event_callback(self, cb: ReceiverEventCallback) -> None:
         """Set the callback for listener events
@@ -265,8 +265,8 @@ cdef class RecvListener:
         Raises:
             InvalidStateError: If the listener is not open.
         """
-        changed = self._get_receivers()
-        return list(self._discovered_receivers.values()), changed
+        changed = self._get_peers()
+        return list(self._discovered_peers.values()), changed
 
     def wait_for_receiver_change(self, float timeout) -> bool:
         """Wait for a change in the list of discovered receivers
@@ -287,7 +287,7 @@ cdef class RecvListener:
         if timeout < 0:
             raise ValueError("Timeout must be non-negative")
         cdef uint32_t timeout_ms = round(timeout * 1000)
-        return self._wait_for_receiver_change(timeout_ms)
+        return self._wait_for_peer_change(timeout_ms)
 
     def get_events(self, float timeout) -> list[tuple[DiscoveredReceiver, ReceiveListenerEvent]]:
         """Get the list of listener events within the specified timeout
@@ -326,8 +326,8 @@ cdef class RecvListener:
         cdef object event
         result = []
         for event in events:
-            if event.uuid in self._discovered_receivers:
-                receiver = self._discovered_receivers[event.uuid]
+            if event.uuid in self._discovered_peers:
+                receiver = self._discovered_peers[event.uuid]
                 result.append((receiver, event))
         return result
 
@@ -348,7 +348,7 @@ cdef class RecvListener:
             uuid_bytes = uuid.encode('utf-8')
         else:
             uuid_bytes = uuid
-        return self._discovered_receivers.get(uuid_bytes)
+        return self._discovered_peers.get(uuid_bytes)
 
     def get(
         self,
@@ -371,7 +371,7 @@ cdef class RecvListener:
             uuid_bytes = uuid.encode('utf-8')
         else:
             uuid_bytes = uuid
-        return self._discovered_receivers.get(uuid_bytes, default)
+        return self._discovered_peers.get(uuid_bytes, default)
 
     def subscribe(self, uuid: bytes) -> None:
         """Subscribe to events from the receiver with the given UUID
@@ -402,18 +402,18 @@ cdef class RecvListener:
     def keys(self) -> KeysView[bytes]:
         """Get a view of the discovered receiver :attr:`UUID's <.DiscoveredReceiver.uuid>`
         """
-        return self._discovered_receivers.copy().keys()
+        return self._discovered_peers.copy().keys()
 
     def values(self) -> ValuesView[DiscoveredReceiver]:
         """Get a view of the :class:`.DiscoveredReceiver` instances
         """
-        return self._discovered_receivers.copy().values()
+        return self._discovered_peers.copy().values()
 
     def items(self) -> ItemsView[bytes, DiscoveredReceiver]:
         """Get a view of the discovered receiver :attr:`UUID's <.DiscoveredReceiver.uuid>`
         and their corresponding :class:`.DiscoveredReceiver` instances
         """
-        return self._discovered_receivers.copy().items()
+        return self._discovered_peers.copy().items()
 
     def __contains__(self, uuid: str | bytes) -> bool:
         cdef bytes uuid_bytes
@@ -421,7 +421,7 @@ cdef class RecvListener:
             uuid_bytes = uuid.encode('utf-8')
         else:
             uuid_bytes = uuid
-        return uuid_bytes in self._discovered_receivers
+        return uuid_bytes in self._discovered_peers
 
     def __getitem__(self, uuid: str | bytes) -> DiscoveredReceiver:
         cdef bytes uuid_bytes
@@ -429,13 +429,13 @@ cdef class RecvListener:
             uuid_bytes = uuid.encode('utf-8')
         else:
             uuid_bytes = uuid
-        return self._discovered_receivers[uuid_bytes]
+        return self._discovered_peers[uuid_bytes]
 
     def __iter__(self) -> Iterator[DiscoveredReceiver]:
-        yield from self._discovered_receivers.copy().values()
+        yield from self._discovered_peers.copy().values()
 
     def __len__(self) -> int:
-        return len(self._discovered_receivers)
+        return len(self._discovered_peers)
 
     def __enter__(self) -> Self:
         self._open()
@@ -447,7 +447,7 @@ cdef class RecvListener:
     cdef int _open(self) except -1:
         if self._instance != NULL:
             raise InvalidStateError("Recv listener is already open")
-        self._discovered_receivers.clear()
+        self._discovered_peers.clear()
         if self._use_default_url_address:
             self._instance = NDIlib_recv_listener_create()
         else:
@@ -461,7 +461,7 @@ cdef class RecvListener:
         self._instance = NULL
         if instance != NULL:
             NDIlib_recv_listener_destroy(instance)
-        self._discovered_receivers.clear()
+        self._discovered_peers.clear()
         return 0
 
     cdef bint _is_connected(self) except -1 nogil:
@@ -483,62 +483,62 @@ cdef class RecvListener:
             return cpp_string()
         return cpp_string(server_url)
 
-    cdef bint _get_receivers(self) except -1:
+    cdef bint _get_peers(self) except -1:
         self._ensure_open()
-        cdef uint32_t p_num_receivers = 0
-        cdef const NDIlib_receiver_t* p_receivers = NDIlib_recv_listener_get_receivers(
-            self._instance, &p_num_receivers
+        cdef uint32_t p_num_peers = 0
+        cdef const NDIlib_receiver_t* p_peers = NDIlib_recv_listener_get_receivers(
+            self._instance, &p_num_peers
         )
         cdef bint any_changed = False
-        cdef object discovered_receiver
+        cdef object discovered_peer
         events: list[tuple[str, DiscoveredReceiver]] = []
-        if p_receivers == NULL or p_num_receivers == 0:
+        if p_peers == NULL or p_num_peers == 0:
             # If there are no receivers, clear all and trigger removed callbacks
-            for discovered_receiver in self._discovered_receivers.values():
-                events.append(("removed", discovered_receiver))
+            for discovered_peer in self._discovered_peers.values():
+                events.append(("removed", discovered_peer))
                 any_changed = True
-            self._discovered_receivers.clear()
-            for event_type, discovered_receiver in events:
-                self._trigger_receiver_callback(event_type, discovered_receiver)
+            self._discovered_peers.clear()
+            for event_type, discovered_peer in events:
+                self._trigger_peer_callback(event_type, discovered_peer)
             return any_changed
         cdef uint32_t i
-        cdef dict discovered_receiver_dict = {}
-        cdef object new_discovered_receiver
-        cdef bytes receiver_uuid_bytes
+        cdef dict discovered_peer_dict = {}
+        cdef object new_discovered_peer
+        cdef bytes peer_uuid_bytes
         cdef bint existing = False
         cdef bint changed = False
-        cdef set previous_uuids_bytes = set(self._discovered_receivers.keys())
-        for i in range(p_num_receivers):
-            receiver_uuid_bytes = p_receivers[i].p_uuid
-            existing = receiver_uuid_bytes in previous_uuids_bytes
+        cdef set previous_uuids_bytes = set(self._discovered_peers.keys())
+        for i in range(p_num_peers):
+            peer_uuid_bytes = p_peers[i].p_uuid
+            existing = peer_uuid_bytes in previous_uuids_bytes
             if existing:
-                discovered_receiver = self._discovered_receivers[receiver_uuid_bytes]
-                new_discovered_receiver = _DiscoveredReceiver_from_ptr(&p_receivers[i])
-                changed = discovered_receiver != new_discovered_receiver
+                discovered_peer = self._discovered_peers[peer_uuid_bytes]
+                new_discovered_peer = _DiscoveredReceiver_from_ptr(&p_peers[i])
+                changed = discovered_peer != new_discovered_peer
                 if changed:
-                    discovered_receiver = new_discovered_receiver
+                    discovered_peer = new_discovered_peer
                     any_changed = True
-                    events.append(("updated", discovered_receiver))
+                    events.append(("updated", discovered_peer))
             else:
-                discovered_receiver = _DiscoveredReceiver_from_ptr(&p_receivers[i])
-                events.append(("added", discovered_receiver))
+                discovered_peer = _DiscoveredReceiver_from_ptr(&p_peers[i])
+                events.append(("added", discovered_peer))
                 if self.auto_subscribe:
-                    self._subscribe_events(receiver_uuid_bytes)
+                    self._subscribe_events(peer_uuid_bytes)
                 any_changed = True
-            discovered_receiver_dict[receiver_uuid_bytes] = discovered_receiver
-            previous_uuids_bytes.discard(receiver_uuid_bytes)
-        for receiver_uuid_bytes in previous_uuids_bytes:
-            discovered_receiver = self._discovered_receivers[receiver_uuid_bytes]
-            self._unsubscribe_events(receiver_uuid_bytes)
-            events.append(("removed", discovered_receiver))
+            discovered_peer_dict[peer_uuid_bytes] = discovered_peer
+            previous_uuids_bytes.discard(peer_uuid_bytes)
+        for peer_uuid_bytes in previous_uuids_bytes:
+            discovered_peer = self._discovered_peers[peer_uuid_bytes]
+            self._unsubscribe_events(peer_uuid_bytes)
+            events.append(("removed", discovered_peer))
             any_changed = True
-        self._discovered_receivers.clear()
-        self._discovered_receivers.update(discovered_receiver_dict)
-        for event_type, discovered_receiver in events:
-            self._trigger_receiver_callback(event_type, discovered_receiver)
+        self._discovered_peers.clear()
+        self._discovered_peers.update(discovered_peer_dict)
+        for event_type, discovered_peer in events:
+            self._trigger_peer_callback(event_type, discovered_peer)
         return any_changed
 
-    cdef bint _wait_for_receiver_change(self, uint32_t timeout_ms) except -1 nogil:
+    cdef bint _wait_for_peer_change(self, uint32_t timeout_ms) except -1 nogil:
         self._ensure_open()
         with nogil:
             return NDIlib_recv_listener_wait_for_receivers(self._instance, timeout_ms)
@@ -587,9 +587,9 @@ cdef class RecvListener:
             self._trigger_event_callback(event)
         return results
 
-    cdef _trigger_receiver_callback(self, str event_type, object discovered_receiver):
-        cdef tuple callback_args = (event_type, discovered_receiver)
-        self._receiver_callback.trigger_callback(callback_args)
+    cdef _trigger_peer_callback(self, str event_type, object discovered_peer):
+        cdef tuple callback_args = (event_type, discovered_peer)
+        self._peer_callback.trigger_callback(callback_args)
         return 0
 
     cdef _trigger_event_callback(self, object event):
