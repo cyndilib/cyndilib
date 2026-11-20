@@ -456,8 +456,6 @@ cdef class SendListener:
 
     cdef cpp_string _get_url_address(self):
         self._ensure_open()
-        # if self._instance == NULL:
-        #     return cpp_string()
         cdef const char* server_url = NDIlib_send_listener_get_server_url(self._instance)
         if server_url == NULL:
             return cpp_string()
@@ -485,7 +483,6 @@ cdef class SendListener:
         cdef NDIlib_sender_t ndi_sender
         cdef dict discovered_sender_dict = {}
         cdef object new_discovered_sender
-        # cdef cpp_string sender_uuid_cpp
         cdef bytes sender_uuid_bytes
         cdef bint existing = False
         cdef bint changed = False
@@ -500,39 +497,26 @@ cdef class SendListener:
                 changed = discovered_sender != new_discovered_sender
                 if changed:
                     discovered_sender = new_discovered_sender
-                    # self._discovered_senders[sender_uuid_bytes] = discovered_sender
                     any_changed = True
                     events.append(("updated", discovered_sender))
             else:
-                # discovered_sender = DiscoveredSender._from_ptr(&ndi_sender)
                 discovered_sender = _DiscoveredSender_from_ptr(&ndi_sender)
-                # discovered_sender.parent = self
-                # self._discovered_senders[sender_uuid_bytes] = discovered_sender
                 events.append(("added", discovered_sender))
                 if self.auto_subscribe:
-                    # discovered_sender._subscribe_events()
                     self._subscribe_events(sender_uuid_bytes)
                 any_changed = True
             discovered_sender_dict[sender_uuid_bytes] = discovered_sender
             previous_uuids_bytes.discard(sender_uuid_bytes)
         for sender_uuid_bytes in previous_uuids_bytes:
             discovered_sender = self._discovered_senders[sender_uuid_bytes]
-            # discovered_sender._unsubscribe_events()
             self._unsubscribe_events(sender_uuid_bytes)
             events.append(("removed", discovered_sender))
-            # discovered_sender.parent = None
-            # del self._discovered_senders[sender_uuid_bytes]
             any_changed = True
-        # if any_changed:
         self._discovered_senders.clear()
         self._discovered_senders.update(discovered_sender_dict)
         for event_type, discovered_sender in events:
             self._trigger_sender_callback(event_type, discovered_sender)
         return any_changed
-
-    # cdef bint _wait_for_senders(self, uint32_t timeout_ms) except -1 nogil:
-    #     self._ensure_open()
-    #     return NDIlib_send_listener_wait_for_senders(self._instance, timeout_ms)
 
     cdef bint _wait_for_sender_change(self, uint32_t timeout_ms) except -1 nogil:
         self._ensure_open()

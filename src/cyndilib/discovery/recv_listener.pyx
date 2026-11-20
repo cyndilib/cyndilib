@@ -478,8 +478,6 @@ cdef class RecvListener:
 
     cdef cpp_string _get_url_address(self):
         self._ensure_open()
-        # if self._instance == NULL:
-        #     return cpp_string()
         cdef const char* server_url = NDIlib_recv_listener_get_server_url(self._instance)
         if server_url == NULL:
             return cpp_string()
@@ -531,10 +529,7 @@ cdef class RecvListener:
             previous_uuids_bytes.discard(receiver_uuid_bytes)
         for receiver_uuid_bytes in previous_uuids_bytes:
             discovered_receiver = self._discovered_receivers[receiver_uuid_bytes]
-            # discovered_receiver._unsubscribe_events()
             self._unsubscribe_events(receiver_uuid_bytes)
-            # discovered_receiver.parent = None
-            # del self._discovered_receivers[receiver_uuid_bytes]
             events.append(("removed", discovered_receiver))
             any_changed = True
         self._discovered_receivers.clear()

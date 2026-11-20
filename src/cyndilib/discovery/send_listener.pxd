@@ -44,7 +44,6 @@ cdef class SendListener:
     cdef int _ensure_open(self) except -1 nogil
     cdef cpp_string _get_url_address(self)
     cdef bint _get_senders(self) except -1
-    # cdef bint _wait_for_senders(self, uint32_t timeout_ms) except -1 nogil
     cdef bint _wait_for_sender_change(self, uint32_t timeout_ms) except -1 nogil
     cdef int _subscribe_events(self, const char* sender_uuid) except -1 nogil
     cdef int _unsubscribe_events(self, const char* sender_uuid) except -1 nogil
