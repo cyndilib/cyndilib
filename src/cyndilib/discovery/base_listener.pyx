@@ -396,8 +396,7 @@ cdef class BaseListener:
             uuid_bytes = uuid_cpp
             peer_obj = current_peers[uuid_bytes]
             events.append(("removed", peer_obj))
-            if self.auto_subscribe:
-                self._unsubscribe_events(uuid_cpp.c_str())
+            self._unsubscribe_events(uuid_cpp.c_str())
 
         self._discovered_peers.clear()
         self._discovered_peers.update(new_peers)
