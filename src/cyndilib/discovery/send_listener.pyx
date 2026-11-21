@@ -44,12 +44,12 @@ cdef class SendListener(BaseListener):
     >>> with SendListener() as send_listener:
     ...     ...
 
-    After opening the listener, the :meth:`get_senders` method can be used to
+    After opening the listener, the :meth:`get_peers` method can be used to
     retrieve the list of currently discovered senders.  This should be done periodically
     to keep track of changes from the network.
 
     To wait until a change in the list of discovered senders occurs, the
-    :meth:`wait_for_sender_change` method can be used with a specified timeout.
+    :meth:`wait_for_peer_change` method can be used with a specified timeout.
 
     To receive events related to discovered senders, the :meth:`get_events` method
     can be used with a specified timeout.  This should also be done periodically.
