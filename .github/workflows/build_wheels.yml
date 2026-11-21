@@ -45,27 +45,45 @@ on:
 jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}_${{ matrix.python-version }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ ((github.event_name == 'pull_request' && github.event.pull_request.user.login == 'nocarryr') || (github.event_name == 'push' && github.actor == 'nocarryr')) && matrix.blacksmith_runner || matrix.github_runner }}
     env:
-      CIBW_ARCHS: |-
-        ${{ case(
-          matrix.os == 'macos-15-intel', 'x86_64',
-          startsWith(matrix.os, 'blacksmith') && contains(matrix.os, 'macos'), 'arm64',
-          startsWith(matrix.os, 'blacksmith') && contains(matrix.os, 'ubuntu') && !contains(matrix.os, 'arm'), 'x86_64',
-          startsWith(matrix.os, 'blacksmith') && contains(matrix.os, 'ubuntu') && contains(matrix.os, 'arm'), 'aarch64',
-          startsWith(matrix.os, 'blacksmith') && contains(matrix.os, 'windows'), 'AMD64',
-          ''
-        )}}
+      CIBW_ARCHS: ${{ matrix.cibw_arch }}
     strategy:
       fail-fast: false
       matrix:
         python-version: ["cp311", "cp312", "cp313", "cp314", "cp315"]
         os:
-          - "blacksmith-2vcpu-ubuntu-2404"
-          - "blacksmith-2vcpu-windows-2025"
-          - "blacksmith-4vcpu-ubuntu-2404-arm"
-          - "blacksmith-6vcpu-macos-latest"
-          - "macos-15-intel"
+          - linux-x64
+          - linux-arm64
+          - windows-x64
+          - macos-arm64
+          - macos-intel
+        include:
+          - os: linux-x64
+            blacksmith_runner: blacksmith-2vcpu-ubuntu-2404
+            github_runner: ubuntu-24.04
+            cibw_arch: x86_64
+
+          - os: linux-arm64
+            blacksmith_runner: blacksmith-4vcpu-ubuntu-2404-arm
+            github_runner: ubuntu-24.04-arm
+            cibw_arch: aarch64
+
+          - os: windows-x64
+            blacksmith_runner: blacksmith-2vcpu-windows-2025
+            github_runner: windows-2025
+            cibw_arch: AMD64
+
+          - os: macos-arm64
+            blacksmith_runner: blacksmith-6vcpu-macos-latest
+            github_runner: macos-15
+            cibw_arch: arm64
+
+          # Blacksmith doesn't offer Intel macOS runners.
+          - os: macos-intel
+            blacksmith_runner: macos-15-intel
+            github_runner: macos-15-intel
+            cibw_arch: x86_64
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -104,27 +122,22 @@ jobs:
           CIBW_BUILD: ${{ matrix.python-version }}-*
           CIBW_ARCHS: ${{ env.CIBW_ARCHS }}
           CIBW_TEST_SKIP: ${{ steps.cibuildwheel_env.outputs.test_skip }}
-        if: ${{ inputs.os_type }} != "" && (${{ inputs.os_type }} == matrix.os || ${{ inputs.os_type }} == "all")
-        #    ...
-        # with:
-        #   package-dir: .
-        #   output-dir: wheelhouse
-        #   config-file: "{package}/pyproject.toml"
+        if: ${{ !inputs.os_type || inputs.os_type == matrix.os || inputs.os_type == 'all' }}
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: ${{ steps.build_wheel.outcome }} == "success"
+        if: ${{ steps.build_wheel.outcome == 'success' }}
         with:
           path: ./wheelhouse/*.whl
-          name: wheel-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.arch }}
+          name: wheel-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.cibw_arch }}
 
   deploy:
-      name: 'Deploy to PyPI'
-      needs: [build_wheels]
-      runs-on: blacksmith-4vcpu-ubuntu-2404
-      if: ${{ inputs.allow_deploy }}
-      permissions:
-        id-token: write
-      steps:
+    name: Deploy to PyPI
+    needs: [build_wheels]
+    runs-on: ubuntu-24.04
+    if: ${{ inputs.allow_deploy }}
+    permissions:
+      id-token: write
+    steps:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           pattern: wheel-*

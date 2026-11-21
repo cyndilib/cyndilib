@@ -29,12 +29,24 @@ on:
 jobs:
   test_inplace:
     name: Test on ${{ matrix.os }}_${{ matrix.python-version }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ ((github.event_name == 'pull_request' && github.event.pull_request.user.login == 'nocarryr') || (github.event_name == 'push' && github.actor == 'nocarryr')) && matrix.blacksmith_runner || matrix.github_runner }}
     strategy:
       fail-fast: false
       matrix:
-        os: [blacksmith-2vcpu-ubuntu-2404, macos-latest, blacksmith-2vcpu-windows-2025]
+        os: [linux-x64, macos, windows-x64]
         python-version: ["3.11", "3.12", "3.13", "3.14", "3.15"]
+        include:
+          - os: linux-x64
+            blacksmith_runner: blacksmith-2vcpu-ubuntu-2404
+            github_runner: ubuntu-24.04
+
+          - os: macos
+            blacksmith_runner: macos-latest
+            github_runner: macos-latest
+
+          - os: windows-x64
+            blacksmith_runner: blacksmith-2vcpu-windows-2025
+            github_runner: windows-2025
     env:
       UV_PYTHON: ${{ matrix.python-version }}
     steps:
@@ -58,7 +70,7 @@ jobs:
 
   lint:
     name: Lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Install uv
