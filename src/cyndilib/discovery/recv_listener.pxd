@@ -29,27 +29,10 @@ from ..wrapper.ndi_recv_listener cimport (
 )
 
 from ..callback cimport Callback
+from .base_listener cimport BaseListener
 
 
-cdef class RecvListener:
+
+cdef class RecvListener(BaseListener):
     cdef NDIlib_recv_listener_create_t _create_settings
     cdef NDIlib_recv_listener_instance_t _instance
-    cdef bytes _url_address_bytes
-    cdef bint _use_default_url_address
-    cdef readonly bint auto_subscribe
-    cdef dict _discovered_peers
-    cdef Callback _peer_callback
-    cdef Callback _event_callback
-
-    cdef int _open(self) except -1
-    cdef int _close(self) except -1
-    cdef bint _is_connected(self) except -1 nogil
-    cdef int _ensure_open(self) except -1 nogil
-    cdef cpp_string _get_url_address(self)
-    cdef bint _get_peers(self) except -1
-    cdef bint _wait_for_receiver_change(self, uint32_t timeout_ms) except -1 nogil
-    cdef int _subscribe_events(self, const char* peer_uuid) except -1 nogil
-    cdef int _unsubscribe_events(self, const char* peer_uuid) except -1 nogil
-    cdef list _get_events(self, uint32_t timeout_ms)
-    cdef _trigger_peer_callback(self, str event_type, object discovered_peer)
-    cdef _trigger_event_callback(self, object event)

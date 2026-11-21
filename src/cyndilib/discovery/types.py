@@ -11,7 +11,22 @@ from typing import Generic, Literal, NamedTuple, TypeVar
 
 from .events import ReceiverEventName, SenderEventName
 
+DiscoveredPeerT = TypeVar("DiscoveredPeerT", "DiscoveredSender", "DiscoveredReceiver")
+"""Type for discovered peers
+
+This may be a :class:`DiscoveredSender` or :class:`DiscoveredReceiver`
+"""
+
+ListenerEventT = TypeVar("ListenerEventT", "SendListenerEvent", "ReceiveListenerEvent")
+"""Type for listener events
+
+This may be a :class:`SendListenerEvent` or :class:`ReceiveListenerEvent`
+"""
+
 EventName = TypeVar("EventName")
+"""Type for event names"""
+
+
 
 ReceiveStreamType = Literal["video", "audio", "metadata"]
 ReceiveCommandType = Literal["connect"]
@@ -65,13 +80,23 @@ ListenerEventName = Literal["added", "removed", "updated"]
 - "updated": A sender or receiver was updated.
 """
 
+PeerCallback = Callable[[ListenerEventName, DiscoveredPeerT], None]
+"""Callback for changes in discovered peers
+
+This is used when a peer is added, removed, or updated.
+
+:param event_name: The type of event.
+:type event_name: ListenerEventName
+:param peer: The discovered peer.
+:type peer: DiscoveredPeerT
+"""
 
 SenderCallback = Callable[[ListenerEventName, DiscoveredSender], None]
 """Callback signature for changes in discovered senders
 
 This is used when a sender is added, removed, or updated
-by :meth:`.SendListener.get_senders` (if the callback is set via
-:meth:`.SendListener.set_sender_callback`).
+by :meth:`.SendListener.get_peers` (if the callback is set via
+:meth:`.SendListener.set_peer_callback`).
 
 :param event_name: The name of the sender event.
 :type event_name: ListenerEventName
@@ -84,8 +109,8 @@ ReceiverCallback = Callable[[ListenerEventName, DiscoveredReceiver], None]
 """Callback signature for changes in discovered receivers
 
 This is used when a receiver is added, removed, or updated
-by :meth:`.RecvListener.get_receivers` (if the callback is set via
-:meth:`.RecvListener.set_receiver_callback`).
+by :meth:`.RecvListener.get_peers` (if the callback is set via
+:meth:`.RecvListener.set_peer_callback`).
 
 :param event_name: The name of the receiver event.
 :type event_name: ListenerEventName
@@ -125,7 +150,15 @@ class ReceiveListenerEvent(ListenerEvent[ReceiverEventName]):
 
 
 
-SenderEventCallback = Callable[[SendListenerEvent], None]
+ListenerEventCallback = Callable[[ListenerEventT], None]
+"""Callback for listener events
+
+:param event: The event received from the listener.
+:type event: ListenerEventT
+"""
+
+
+SenderEventCallback = ListenerEventCallback[SendListenerEvent]
 """Callback signature for events received from
 :class:`DiscoveredSenders <DiscoveredSender>`
 
@@ -133,7 +166,7 @@ SenderEventCallback = Callable[[SendListenerEvent], None]
 :type event: SendListenerEvent
 """
 
-ReceiverEventCallback = Callable[[ReceiveListenerEvent], None]
+ReceiverEventCallback = ListenerEventCallback[ReceiveListenerEvent]
 """Callback signature for events received from
 :class:`DiscoveredReceivers <DiscoveredReceiver>`
 
