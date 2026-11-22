@@ -78,6 +78,14 @@ cdef class BaseListener:
         """
         self._close()
 
+    def is_open(self) -> bool:
+        """Check if the listener is open
+
+        This could be different from :meth:`is_connected` since
+        the listener might be open but not yet connected.
+        """
+        return self._is_open()
+
     def is_connected(self) -> bool:
         """Check if the listener is connected
 
@@ -355,6 +363,9 @@ cdef class BaseListener:
         raise NotImplementedError()
 
     cdef int _close(self) except -1:
+        raise NotImplementedError()
+
+    cdef bint _is_open(self) except -1 nogil:
         raise NotImplementedError()
 
     cdef bint _is_connected(self) except -1 nogil:

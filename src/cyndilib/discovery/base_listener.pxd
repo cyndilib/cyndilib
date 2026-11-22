@@ -76,6 +76,7 @@ cdef class BaseListener:
 
     cdef int _open(self) except -1
     cdef int _close(self) except -1
+    cdef bint _is_open(self) except -1 nogil
     cdef bint _is_connected(self) except -1 nogil
     cdef int _ensure_open(self) except -1 nogil
     cdef cpp_string _get_url_address(self)

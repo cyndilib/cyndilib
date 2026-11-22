@@ -113,6 +113,9 @@ cdef class SendListener(BaseListener):
         self._discovered_peers.clear()
         return 0
 
+    cdef bint _is_open(self) except -1 nogil:
+        return self._instance != NULL
+
     cdef bint _is_connected(self) except -1 nogil:
         if self._instance == NULL:
             return False
