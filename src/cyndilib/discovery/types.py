@@ -86,7 +86,7 @@ PeerEvent = tuple[ListenerEventName, DiscoveredPeerT]
 """
 
 
-PeerCallback = Callable[[PeerEvent[DiscoveredPeerT]], None]
+PeerCallback = Callable[[ListenerEventName, DiscoveredPeerT], None]
 """Callback for changes in discovered peers
 
 This is used when a peer is added, removed, or updated.
