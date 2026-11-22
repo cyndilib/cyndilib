@@ -78,7 +78,11 @@ class AsyncListenerBase(ABC, Generic[DiscoveredPeerT, ListenerEventT]):
             raise RuntimeError("Tasks already running")
         await self._clear_queue(self._peer_event_queue)
         await self._clear_queue(self._listener_event_queue)
-        self._listener.open()
+        try:
+            self._listener.open()
+        except:
+            self._running = False
+            raise
         self._peer_task = asyncio.create_task(self._peer_update_loop())
         self._listener_task = asyncio.create_task(self._listener_event_loop())
 
