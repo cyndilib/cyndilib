@@ -53,10 +53,10 @@ class AsyncListenerBase(ABC, Generic[DiscoveredPeerT, ListenerEventT]):
         self._event_lock = asyncio.Lock()
         self._peer_task: asyncio.Task | None = None
         self._listener_task: asyncio.Task | None = None
-        self._peer_event_queue = asyncio.Queue[PeerEvent[DiscoveredPeerT]](
+        self._peer_event_queue = asyncio.Queue[PeerEvent[DiscoveredPeerT] | None](
             maxsize=max_queue_size,
         )
-        self._listener_event_queue = asyncio.Queue[ListenerEventT](
+        self._listener_event_queue = asyncio.Queue[ListenerEventT | None](
             maxsize=max_queue_size,
         )
         self._running = False
@@ -97,6 +97,8 @@ class AsyncListenerBase(ABC, Generic[DiscoveredPeerT, ListenerEventT]):
         # from finishing cleanly.
         await self._clear_queue(self._peer_event_queue)
         await self._clear_queue(self._listener_event_queue)
+        await self._peer_event_queue.put(None)
+        await self._listener_event_queue.put(None)
         await self._cancel_task(peer_task)
         await self._cancel_task(listener_task)
         self._listener.close()
@@ -163,15 +165,19 @@ class AsyncListenerBase(ABC, Generic[DiscoveredPeerT, ListenerEventT]):
         """
         return self._listener.items()
 
-    async def wait_for_peer_event(self) -> PeerEvent[DiscoveredPeerT]:
+    async def wait_for_peer_event(self) -> PeerEvent[DiscoveredPeerT] | None:
         """Wait for the next available peer event
+
+        If the listener is closed while waiting, None is returned.
         """
         event = await self._peer_event_queue.get()
         self._peer_event_queue.task_done()
         return event
 
-    async def wait_for_listener_event(self) -> ListenerEventT:
+    async def wait_for_listener_event(self) -> ListenerEventT | None:
         """Wait for the next listener event
+
+        If the listener is closed while waiting, None is returned.
         """
         event = await self._listener_event_queue.get()
         self._listener_event_queue.task_done()
@@ -192,6 +198,8 @@ class AsyncListenerBase(ABC, Generic[DiscoveredPeerT, ListenerEventT]):
         """
         while self._running:
             event = await self.wait_for_peer_event()
+            if event is None:
+                break
             yield event
 
     async def listener_events(self) -> AsyncIterator[ListenerEventT]:
@@ -209,6 +217,8 @@ class AsyncListenerBase(ABC, Generic[DiscoveredPeerT, ListenerEventT]):
         """
         while self._running:
             event = await self.wait_for_listener_event()
+            if event is None:
+                break
             yield event
 
     def __contains__(self, uuid: str | bytes) -> bool:
