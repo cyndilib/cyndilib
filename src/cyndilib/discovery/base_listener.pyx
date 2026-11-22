@@ -4,7 +4,7 @@ Base module for wrapping the |NDI| :term:`Send Listener` and :term:`Receive List
 .. versionadded:: 0.1.4
 """
 from types import GenericAlias
-from typing import Generic, NamedTuple, Iterator, Literal, Self
+from typing import Generic, NamedTuple, Iterator, Literal, Self, overload
 from collections.abc import Callable, KeysView, ItemsView, ValuesView
 
 
@@ -16,6 +16,7 @@ from .types import (
     ListenerEventCallback,
     ListenerEventT,
     PeerCallback,
+    PeerEvent,
     ReceiveListenerEvent,
     SendListenerEvent,
 )
@@ -155,10 +156,18 @@ cdef class BaseListener:
         """
         self._event_callback.remove_callback()
 
-    def get_peers(self) -> tuple[list[DiscoveredPeerT], bool]:
+    @overload
+    def get_peers(self, return_events: Literal[False] = ...) -> tuple[list[DiscoveredPeerT], bool]: ...
+    @overload
+    def get_peers(self, return_events: Literal[True] = ...) -> list[PeerEvent[DiscoveredPeerT]]: ...
+    def get_peers(
+        self,
+        return_events: bool = False
+    ) -> tuple[list[DiscoveredPeerT], bool] | list[PeerEvent[DiscoveredPeerT]]:
         """Update and get the list of discovered peers
 
-        Each item in the returned list will be an instance of :obj:`.DiscoveredPeerT`.
+        Each item in the returned list will contain an instance of :obj:`.DiscoveredPeerT`.
+        If *return_events* is True, it will be the second item in each tuple.
 
         Since :obj:`.DiscoveredPeerT` is a :class:`~typing.NamedTuple`,
         it is immutable and each subsequent call to this method may contain different
@@ -179,13 +188,18 @@ cdef class BaseListener:
             and are safe.
 
         Returns:
-            A tuple containing the list of discovered peers and a boolean indicating
-            if the any item has changed since the last call.
+
+            - If *return_events* is False (the default), a tuple containing the
+              list of discovered peers and a boolean indicating
+              if the any item has changed since the last call.
+            - If *return_events* is True, a list of :class:`.PeerEvent` in order of occurrence.
 
         Raises:
             InvalidStateError: If the listener is not open.
         """
-        changed = self._get_peers()
+        changed, events = self._get_peers()
+        if return_events:
+            return events
         return list(self._discovered_peers.values()), changed
 
     def wait_for_peer_change(self, float timeout) -> bool:
@@ -377,16 +391,16 @@ cdef class BaseListener:
     cdef cpp_string _get_url_address(self):
         raise NotImplementedError()
 
-    cdef bint _get_peers(self) except -1:
+    cdef tuple[bool, list[PeerEvent[DiscoveredPeerT]]] _get_peers(self):
         self._ensure_open()
         cdef GetPeersResult_s get_peers_result
         cdef dict current_peers = self._discovered_peers
         cdef dict new_peers = self._fill_peers_result_internal(&get_peers_result)
 
         if not get_peers_result.any_changed:
-            return False
+            return False, []
 
-        events: list[tuple[str, DiscoveredPeerT]] = []
+        events: list[PeerEvent[DiscoveredPeerT]] = []
 
         cdef cpp_string uuid_cpp
         cdef bytes uuid_bytes
@@ -414,7 +428,7 @@ cdef class BaseListener:
         for event_type, peer_obj in events:
             self._trigger_peer_callback(event_type, peer_obj)
 
-        return True
+        return True, events
 
     cdef dict _fill_peers_result_internal(self, GetPeersResult_s* get_peers_result):
         """Use in subclasses to fill peers result with :func:`_get_and_update_peers`

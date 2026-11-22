@@ -80,7 +80,13 @@ ListenerEventName = Literal["added", "removed", "updated"]
 - "updated": A sender or receiver was updated.
 """
 
-PeerCallback = Callable[[ListenerEventName, DiscoveredPeerT], None]
+
+PeerEvent = tuple[ListenerEventName, DiscoveredPeerT]
+"""A peer event as a tuple of :obj:`ListenerEventName` and :obj:`DiscoveredPeerT`
+"""
+
+
+PeerCallback = Callable[[PeerEvent[DiscoveredPeerT]], None]
 """Callback for changes in discovered peers
 
 This is used when a peer is added, removed, or updated.
