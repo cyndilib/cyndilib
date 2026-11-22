@@ -216,6 +216,9 @@ class AsyncListenerBase(ABC, Generic[DiscoveredPeerT, ListenerEventT]):
     def __iter__(self) -> Iterator[DiscoveredPeerT]:
         yield from self._listener
 
+    def __len__(self) -> int:
+        return len(self._listener)
+
     async def _cancel_task(self, t: asyncio.Task | None) -> None:
         if t is not None:
             t.cancel()
