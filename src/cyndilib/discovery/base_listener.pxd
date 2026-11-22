@@ -4,6 +4,7 @@
 from libc.stdint cimport *
 from libcpp.string cimport string as cpp_string
 from libcpp.vector cimport vector
+from libcpp.pair cimport pair
 
 
 from ..wrapper.ndi_structs cimport NDIlib_listener_event
@@ -51,12 +52,16 @@ ctypedef fused NDIlib_peer_ft:
     NDIlib_sender_t
     NDIlib_receiver_t
 
+cdef enum PeerEvent_e:
+    PEER_ADDED
+    PEER_REMOVED
+    PEER_UPDATED
+
+ctypedef pair[PeerEvent_e, cpp_string] PeerEventPair
 
 # Result container for peer updates
 cdef struct GetPeersResult_s:
-    vector[cpp_string] new_uuids
-    vector[cpp_string] removed_uuids
-    vector[cpp_string] updated_uuids
+    vector[PeerEventPair] events
     bint any_changed
 
 

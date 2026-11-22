@@ -380,23 +380,23 @@ cdef class BaseListener:
         cdef cpp_string uuid_cpp
         cdef bytes uuid_bytes
         cdef object peer_obj
-        for uuid_cpp in get_peers_result.new_uuids:
+        for event_pair in get_peers_result.events:
+            uuid_cpp = event_pair.second
             uuid_bytes = uuid_cpp
-            peer_obj = new_peers[uuid_bytes]
-            events.append(("added", peer_obj))
-            if self.auto_subscribe:
-                self._subscribe_events(uuid_cpp.c_str())
-
-        for uuid_cpp in get_peers_result.updated_uuids:
-            uuid_bytes = uuid_cpp
-            peer_obj = new_peers[uuid_bytes]
-            events.append(("updated", peer_obj))
-
-        for uuid_cpp in get_peers_result.removed_uuids:
-            uuid_bytes = uuid_cpp
-            peer_obj = current_peers[uuid_bytes]
-            events.append(("removed", peer_obj))
-            self._unsubscribe_events(uuid_cpp.c_str())
+            if event_pair.first == PeerEvent_e.PEER_ADDED:
+                peer_obj = new_peers[uuid_bytes]
+                events.append(("added", peer_obj))
+                if self.auto_subscribe:
+                    self._subscribe_events(uuid_cpp.c_str())
+            elif event_pair.first == PeerEvent_e.PEER_UPDATED:
+                peer_obj = new_peers[uuid_bytes]
+                events.append(("updated", peer_obj))
+            elif event_pair.first == PeerEvent_e.PEER_REMOVED:
+                peer_obj = current_peers[uuid_bytes]
+                events.append(("removed", peer_obj))
+                self._unsubscribe_events(uuid_cpp.c_str())
+            else:
+                raise ValueError("Unknown event type")
 
         self._discovered_peers.clear()
         self._discovered_peers.update(new_peers)
@@ -611,12 +611,8 @@ cdef dict _get_and_update_peers(
 
     Returns: The new discovered peers dict
     """
-    if not get_peers_result.new_uuids.empty():
-        raise ValueError("Unexpected new UUIDs")
-    if not get_peers_result.updated_uuids.empty():
-        raise ValueError("Unexpected updated UUIDs")
-    if not get_peers_result.removed_uuids.empty():
-        raise ValueError("Unexpected removed UUIDs")
+    if not get_peers_result.events.empty():
+        raise ValueError("Unexpected events")
     get_peers_result.any_changed = False
     cdef bint any_changed = False
     cdef dict discovered_peer_dict = {}
@@ -626,7 +622,9 @@ cdef dict _get_and_update_peers(
         # If there are no receivers, clear all and trigger removed callbacks
         for discovered_peer in discovered_peers.values():
             peer_uuid_bytes = discovered_peer.uuid
-            get_peers_result.removed_uuids.push_back(peer_uuid_bytes)
+            get_peers_result.events.push_back(
+                (PeerEvent_e.PEER_REMOVED, peer_uuid_bytes)
+            )
             any_changed = True
         get_peers_result.any_changed = any_changed
         return discovered_peer_dict
@@ -646,15 +644,21 @@ cdef dict _get_and_update_peers(
             if changed:
                 discovered_peer = new_discovered_peer
                 any_changed = True
-                get_peers_result.updated_uuids.push_back(peer_uuid_bytes)
+                get_peers_result.events.push_back(
+                    (PeerEvent_e.PEER_UPDATED, peer_uuid_bytes)
+                )
         else:
             discovered_peer = _DiscoveredPeer_from_ptr(&p_peers[i])
-            get_peers_result.new_uuids.push_back(peer_uuid_bytes)
+            get_peers_result.events.push_back(
+                (PeerEvent_e.PEER_ADDED, peer_uuid_bytes)
+            )
             any_changed = True
         discovered_peer_dict[peer_uuid_bytes] = discovered_peer
         previous_uuids_bytes.discard(peer_uuid_bytes)
     for peer_uuid_bytes in previous_uuids_bytes:
-        get_peers_result.removed_uuids.push_back(peer_uuid_bytes)
+        get_peers_result.events.push_back(
+            (PeerEvent_e.PEER_REMOVED, peer_uuid_bytes)
+        )
         any_changed = True
     get_peers_result.any_changed = any_changed
     return discovered_peer_dict
