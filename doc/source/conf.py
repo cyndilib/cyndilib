@@ -5,8 +5,14 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.ext.autodoc._property_types import _AutodocObjType
 
 # EXTREMELY IMPORTANT: Ignore native module type stubs for autodoc
 # This prevents Sphinx from trying to import type stubs for native modules,
@@ -57,6 +63,58 @@ extensions = [
     # TODO: Re-enable after determining issues with import discovery in examples
     # 'sphinx_codeautolink',
 ]
+
+
+def on_autodoc_process_signature(
+    app: Sphinx,
+    obj_type: _AutodocObjType,
+    full_name: str,
+    obj: object,
+    options: object,
+    signature: str,
+    return_annotation: str | None,
+):
+    from cyndilib.discovery.types import (
+        DiscoveredPeerT,
+        DiscoveredReceiver,
+        DiscoveredSender,
+        ListenerEventT,
+        ReceiveListenerEvent,
+        SendListenerEvent,
+    )
+
+    if return_annotation is None:
+        return signature, return_annotation
+    if obj_type == "method":
+        # Since we're using `:inherited-members:` to generate the docs from
+        # their generic bases, remap the generics to their real types for clarity.
+        if obj.__module__ != "cyndilib.discovery.base_listener":
+            return signature, return_annotation
+
+        # Use the imported class names to avoid losing sync if the code changes
+        generic_names = {
+            DiscoveredPeerT.__name__: {
+                "SendListener": DiscoveredSender.__name__,
+                "RecvListener": DiscoveredReceiver.__name__
+            },
+            ListenerEventT.__name__: {
+                "SendListener": SendListenerEvent.__name__,
+                "RecvListener": ReceiveListenerEvent.__name__,
+            }
+        }
+        class_name = full_name.split('.')[-2]
+        if class_name in ["SendListener", "RecvListener"]:
+            for k, v in generic_names.items():
+                if k in return_annotation:
+                    return_annotation = return_annotation.replace(k, v[class_name])
+                if k in signature:
+                    signature = signature.replace(k, v[class_name])
+        return signature, return_annotation
+
+
+
+def setup(app: Sphinx):
+    app.connect("autodoc-process-signature", on_autodoc_process_signature)
 
 
 autodoc_member_order = 'bysource'
