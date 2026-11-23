@@ -214,7 +214,7 @@ class AsyncListenerBase(ABC, Generic[DiscoveredPeerT, ListenerEventT]):
             :meth:`wait_for_peer_event` at a time.
             If more than one attempt is made, it will block indefinitely.
         """
-        async with self._event_consumer_lock:
+        async with self._update_consumer_lock:
             while self._running:
                 event = await self._peer_event_queue.get()
                 self._peer_event_queue.task_done()
@@ -236,7 +236,7 @@ class AsyncListenerBase(ABC, Generic[DiscoveredPeerT, ListenerEventT]):
             :meth:`wait_for_listener_event` at a time.
             If more than one attempt is made, it will block indefinitely.
         """
-        async with self._update_consumer_lock:
+        async with self._event_consumer_lock:
             while self._running:
                 event = await self._listener_event_queue.get()
                 self._listener_event_queue.task_done()
