@@ -259,13 +259,9 @@ class AsyncListenerBase(ABC, Generic[DiscoveredPeerT, ListenerEventT]):
         """
         wait_timeout = .2
         async def wait_for_change() -> bool:
-            task = asyncio.to_thread(
+            changed = await asyncio.to_thread(
                 self._listener.wait_for_peer_change, wait_timeout
             )
-
-            # Shield the threaded call from cancellation. With a short enough
-            # wait timeout, this should be acceptable versus a possible thread hang.
-            changed = await asyncio.shield(task)
             return changed
 
         while self._running:
@@ -290,11 +286,10 @@ class AsyncListenerBase(ABC, Generic[DiscoveredPeerT, ListenerEventT]):
         """
         wait_timeout = .2
         async def get_events() -> list[tuple[DiscoveredPeerT, ListenerEventT]]:
-            task = asyncio.to_thread(
+            events = await asyncio.to_thread(
                 self._listener.get_events, wait_timeout
             )
-            # Shield the threaded call from cancellation.
-            return await asyncio.shield(task)
+            return events
 
         while self._running:
             async with self._event_lock:
