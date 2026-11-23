@@ -76,10 +76,11 @@ cdef class BaseListener:
 
     cdef int _open(self) except -1
     cdef int _close(self) except -1
+    cdef bint _is_open(self) except -1 nogil
     cdef bint _is_connected(self) except -1 nogil
     cdef int _ensure_open(self) except -1 nogil
     cdef cpp_string _get_url_address(self)
-    cdef bint _get_peers(self) except -1
+    cdef tuple[bool, list[PeerEvent[DiscoveredPeerT]]] _get_peers(self)
     cdef dict _fill_peers_result_internal(self, GetPeersResult_s* get_peers_result)
     cdef bint _wait_for_peer_change(self, uint32_t timeout_ms) except -1 nogil
     cdef int _subscribe_events(self, const char* peer_uuid) except -1 nogil

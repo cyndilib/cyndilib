@@ -88,22 +88,37 @@ def on_autodoc_process_signature(
     if obj_type == "method":
         # Since we're using `:inherited-members:` to generate the docs from
         # their generic bases, remap the generics to their real types for clarity.
-        if obj.__module__ != "cyndilib.discovery.base_listener":
+        if obj.__module__ == "cyndilib.discovery.base_listener":
+
+            # Use the imported class names to avoid losing sync if the code changes
+            generic_names = {
+                DiscoveredPeerT.__name__: {
+                    "SendListener": DiscoveredSender.__name__,
+                    "RecvListener": DiscoveredReceiver.__name__
+                },
+                ListenerEventT.__name__: {
+                    "SendListener": SendListenerEvent.__name__,
+                    "RecvListener": ReceiveListenerEvent.__name__,
+                }
+            }
+            class_names = ["SendListener", "RecvListener"]
+        elif obj.__module__ == "cyndilib.discovery.async_listeners":
+            generic_names = {
+                DiscoveredPeerT.__name__: {
+                    "AsyncSendListener": DiscoveredSender.__name__,
+                    "AsyncRecvListener": DiscoveredReceiver.__name__
+                },
+                ListenerEventT.__name__: {
+                    "AsyncSendListener": SendListenerEvent.__name__,
+                    "AsyncRecvListener": ReceiveListenerEvent.__name__,
+                }
+            }
+            class_names = ["AsyncSendListener", "AsyncRecvListener"]
+        else:
             return signature, return_annotation
 
-        # Use the imported class names to avoid losing sync if the code changes
-        generic_names = {
-            DiscoveredPeerT.__name__: {
-                "SendListener": DiscoveredSender.__name__,
-                "RecvListener": DiscoveredReceiver.__name__
-            },
-            ListenerEventT.__name__: {
-                "SendListener": SendListenerEvent.__name__,
-                "RecvListener": ReceiveListenerEvent.__name__,
-            }
-        }
         class_name = full_name.split('.')[-2]
-        if class_name in ["SendListener", "RecvListener"]:
+        if class_name in class_names:
             for k, v in generic_names.items():
                 if k in return_annotation:
                     return_annotation = return_annotation.replace(k, v[class_name])
