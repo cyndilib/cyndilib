@@ -51,6 +51,8 @@ class AsyncListenerBase(ABC, Generic[DiscoveredPeerT, ListenerEventT]):
         )
         self._update_lock = asyncio.Lock()
         self._event_lock = asyncio.Lock()
+        self._update_consumer_lock = asyncio.Lock()
+        self._event_consumer_lock = asyncio.Lock()
         self._peer_task: asyncio.Task | None = None
         self._listener_task: asyncio.Task | None = None
         self._peer_event_queue = asyncio.Queue[PeerEvent[DiscoveredPeerT] | None](
@@ -169,19 +171,29 @@ class AsyncListenerBase(ABC, Generic[DiscoveredPeerT, ListenerEventT]):
         """Wait for the next available peer event
 
         If the listener is closed while waiting, None is returned.
+
+        .. important::
+            This method should not be mixed with :meth:`wait_for_peer_event`.
+            If both are used, it may block indefinitely.
         """
-        event = await self._peer_event_queue.get()
-        self._peer_event_queue.task_done()
-        return event
+        async with self._update_consumer_lock:
+            event = await self._peer_event_queue.get()
+            self._peer_event_queue.task_done()
+            return event
 
     async def wait_for_listener_event(self) -> ListenerEventT | None:
         """Wait for the next listener event
 
         If the listener is closed while waiting, None is returned.
+
+        .. important::
+            This method should not be mixed with :meth:`listener_events`.
+            If both are used, it may block.
         """
-        event = await self._listener_event_queue.get()
-        self._listener_event_queue.task_done()
-        return event
+        async with self._event_consumer_lock:
+            event = await self._listener_event_queue.get()
+            self._listener_event_queue.task_done()
+            return event
 
     async def peer_events(self) -> AsyncIterator[PeerEvent[DiscoveredPeerT]]:
         """Asyncronously iterate through received peer events
@@ -193,14 +205,17 @@ class AsyncListenerBase(ABC, Generic[DiscoveredPeerT, ListenerEventT]):
         ...     print(e)
 
         .. important::
-            If using this method, avoid calls to :meth:`wait_for_peer_event`
-            directly as it may lead to missed events.
+            Only one consumer may use this method or its counterpart
+            :meth:`wait_for_peer_event` at a time.
+            If more than one attempt is made, it will block indefinitely.
         """
-        while self._running:
-            event = await self.wait_for_peer_event()
-            if event is None:
-                break
-            yield event
+        async with self._event_consumer_lock:
+            while self._running:
+                event = await self._peer_event_queue.get()
+                self._peer_event_queue.task_done()
+                if event is None:
+                    break
+                yield event
 
     async def listener_events(self) -> AsyncIterator[ListenerEventT]:
         """Asyncronously iterate through received listener events
@@ -212,14 +227,17 @@ class AsyncListenerBase(ABC, Generic[DiscoveredPeerT, ListenerEventT]):
         ...     print(e)
 
         .. important::
-            If using this method, avoid calls to :meth:`wait_for_listener_event`
-            directly as it may lead to missed events.
+            Only one consumer may use this method or its counterpart
+            :meth:`wait_for_listener_event` at a time.
+            If more than one attempt is made, it will block indefinitely.
         """
-        while self._running:
-            event = await self.wait_for_listener_event()
-            if event is None:
-                break
-            yield event
+        async with self._update_consumer_lock:
+            while self._running:
+                event = await self._listener_event_queue.get()
+                self._listener_event_queue.task_done()
+                if event is None:
+                    break
+                yield event
 
     def __contains__(self, uuid: str | bytes) -> bool:
         return uuid in self._listener
