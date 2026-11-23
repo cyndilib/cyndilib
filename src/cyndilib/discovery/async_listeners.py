@@ -172,6 +172,11 @@ class AsyncListenerBase(ABC, Generic[DiscoveredPeerT, ListenerEventT]):
 
         If the listener is closed while waiting, None is returned.
 
+        If enough peer changes occur between calls, they will be discarded.
+        The number of items kept is limited by the *max_queue_size* initialization
+        parameter.  If not regularly consuming, the first events received will
+        be the oldest and newer events will not be available.
+
         .. important::
             This method should not be mixed with :meth:`wait_for_peer_event`.
             If both are used, it may block indefinitely.
@@ -291,9 +296,10 @@ class AsyncListenerBase(ABC, Generic[DiscoveredPeerT, ListenerEventT]):
                     continue
                 events = self._listener.get_peers(return_events=True)
             for e in events:
-                await self._peer_event_queue.put(e)
-                if not self._running:
-                    break
+                try:
+                    self._peer_event_queue.put_nowait(e)
+                except asyncio.QueueFull:
+                    continue
 
     async def _listener_event_loop(self) -> None:
         """Periodically check for listener events
